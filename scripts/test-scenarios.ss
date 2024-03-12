@@ -198,9 +198,9 @@
   (help: "Rescan blockchain" getopt: [])
   {rescan-blockchain client})
 
-(define-entry-point (get-transaction)
-  (help: "Get transaction info" getopt: [])
-  {get-transaction client "30dc9296f3e5a873ff9da50b3bfdc2026aa60ea785ad963216ae0d748209dd9d"})
+(define-entry-point (get-transaction tx-id)
+  (help: "Get transaction info" getopt: [(argument 'tx-id help: "transaction id")])
+  {get-transaction client tx-id})
 
 (current-program "test-scenarios")
 (set-default-entry-point! 'start)
