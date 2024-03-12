@@ -1,0 +1,6 @@
+*~
+build-deps
+/manifest.ss
+.gerbil
+.build
+data
