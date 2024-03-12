@@ -5,9 +5,8 @@ let pkgs = import ./pkgs.nix;
     ];
 in pkgs.mkShell {
     buildInputs = [
-		pkgs.gerbil-unstable
-		pkgs.bitcoin
-        pkgs.gdb
+        pkgs.gerbil-unstable
+        pkgs.bitcoin
     ] ++ gerbilInputs;
 
     shellHook = ''
