@@ -3,6 +3,7 @@
 let pkgs = import ./pkgs.nix;
     sequentia = if withLocalSequentia then pkgs.callPackage ../SEQ-Core-Elements/default.nix {} else pkgs.sequentia;
     gerbilPackages = [ 
+        pkgs.gerbilPackages-unstable.gerbil-crypto
         pkgs.gerbilPackages-unstable.gerbil-utils
         pkgs.gerbilPackages-unstable.gerbil-poo
     ]; 
