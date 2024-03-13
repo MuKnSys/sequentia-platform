@@ -7,10 +7,10 @@
   :std/misc/process
   :std/sugar
   :std/text/json
-  :clan/sequentia/elements-client
-  :clan/sequentia/types)
+  :mukn/sequentia/elements-client
+  :mukn/sequentia/types)
 
-(def client (make-ElementsClient 
+(def client (make-ElementsClient
     data-directory: "./data/elementsdir1"
     host: "127.0.0.1"
     port: 18884
@@ -21,7 +21,7 @@
   (def database-path (string-append (@ client data-directory) "/elementsregtest"))
   (when (file-exists? database-path)
     (run-process ["rm" "-rf" database-path]))
-  {restart-daemon client}  
+  {restart-daemon client}
   {initialize-wallet client}
   {rescan-blockchain client})
 
@@ -46,9 +46,9 @@
   (def receive-address {get-new-address client address-type: "bech32"})
   (def bitcoin (hash-get {dump-asset-labels client} "bitcoin"))
   (def utxo (last {list-unspent client}))
-  (def inputs 
+  (def inputs
     [(make-TxInput txid: (@ utxo txid) vout: (@ utxo vout) sequence: #!void)])
-  (def outputs 
+  (def outputs
     [(make-TxAddressOutput address: receive-address amount: (- (@ utxo amount) 0.01) asset: bitcoin)
      (make-TxFeeOutput amount: 0.01)])
   (def raw-tx {create-raw-transaction client inputs outputs})
@@ -68,9 +68,9 @@
   (def utxos {list-unspent client})
   (def utxo (last utxos))
   (def bitcoin (hash-get {dump-asset-labels client} "bitcoin"))
-  (def inputs 
+  (def inputs
     [(make-TxInput txid: (@ utxo txid) vout: (@ utxo vout) sequence: #!void)])
-  (def outputs 
+  (def outputs
     [(make-TxAddressOutput address: receive-address amount: (@ utxo amount) asset: bitcoin)
      (make-TxFeeOutput amount: 0)])
   (def raw-tx {create-raw-transaction client inputs outputs})
@@ -89,9 +89,9 @@
   (def utxos {list-unspent client})
   (def utxo (last utxos))
   (def bitcoin (hash-get {dump-asset-labels client} "bitcoin"))
-  (def inputs 
+  (def inputs
     [(make-TxInput txid: (@ utxo txid) vout: (@ utxo vout) sequence: #!void)])
-  (def outputs 
+  (def outputs
     [(make-TxAddressOutput address: receive-address amount: (@ utxo amount) asset: bitcoin)
      (make-TxFeeOutput amount: 0)])
   (def hex {create-raw-transaction client inputs outputs})
@@ -138,7 +138,7 @@
   (def utxos {list-unspent client})
   (def bitcoin-hex (hash-get {dump-asset-labels client} "bitcoin"))
   (def bitcoin-utxo (find (lambda (utxo) (equal? (@ utxo asset) bitcoin-hex)) utxos))
-  (def asset-utxo (find (lambda (utxo) (equal? (@ utxo asset) asset-hex)) utxos))  
+  (def asset-utxo (find (lambda (utxo) (equal? (@ utxo asset) asset-hex)) utxos))
   (def destination-address {get-new-address client address-type: "bech32"})
   (def change-address {get-new-address client address-type: "bech32"})
   (def inputs
