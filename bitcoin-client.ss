@@ -45,7 +45,7 @@
   (lambda (self)
     (run-process 
       (append 
-        [(string-append "../SEQ-Core-Elements/src/" {daemon-executable-name self})
+        [{daemon-executable-name self}
          (string-append "-datadir=" (@ self data-directory))]
          (@ self options)))
       stdout-redirection: #false))
