@@ -44,12 +44,14 @@
   (initialize-test)
   (def send-address {get-new-address client address-type: "bech32"})
   (def receive-address {get-new-address client address-type: "bech32"})
+  (def change-address {get-new-address client address-type: "bech32"})
   (def bitcoin (hash-get {dump-asset-labels client} "bitcoin"))
   (def utxo (last {list-unspent client}))
   (def inputs
     [(make-TxInput txid: (@ utxo txid) vout: (@ utxo vout) sequence: #!void)])
   (def outputs
-    [(make-TxAddressOutput address: receive-address amount: (- (@ utxo amount) 0.01) asset: bitcoin)
+    [(make-TxAddressOutput address: receive-address amount: 10 asset: bitcoin)
+     (make-TxAddressOutput address: change-address amount: (- (@ utxo amount) 10 0.01) asset: bitcoin)
      (make-TxFeeOutput amount: 0.01)])
   (def raw-tx {create-raw-transaction client inputs outputs})
   (def tx {decode-raw-transaction client raw-tx})
