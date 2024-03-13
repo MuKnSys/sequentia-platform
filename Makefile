@@ -23,3 +23,6 @@ clean:
 
 repl:
 	gxi -:te
+
+build-sequentia:
+	cd ../SEQ-Core-Elements && make -j 8

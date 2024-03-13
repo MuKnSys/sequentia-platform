@@ -8,6 +8,10 @@ let pkgs = import ./pkgs.nix;
         pkgs.gerbilPackages-unstable.gerbil-poo
     ]; 
 in pkgs.mkShell {
+    inputsFrom = [
+        sequentia
+    ];
+
     buildInputs = gerbilPackages ++ [
         pkgs.gerbil-unstable
         sequentia
