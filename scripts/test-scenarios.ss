@@ -12,6 +12,7 @@
 
 (def client (make-ElementsClient
     data-directory: "./data/elementsdir1"
+    options: ["-logsourcelocations"]
     host: "127.0.0.1"
     port: 18884
     username: "user1"

@@ -23,7 +23,7 @@
 
 ; Bitcoin
 (defclass BitcoinClient 
-  (data-directory host port username password))
+  (data-directory options host port username password))
 
 (defmethod {daemon-executable-name BitcoinClient}
   (lambda (self) "bitcoind"))
@@ -44,9 +44,10 @@
 (defmethod {start-daemon BitcoinClient}
   (lambda (self)
     (run-process 
-      [(string-append "../SEQ-Core-Elements/src/" {daemon-executable-name self})
-       (string-append "-datadir=" (@ self data-directory))
-       "-logsourcelocations"])
+      (append 
+        [(string-append "../SEQ-Core-Elements/src/" {daemon-executable-name self})
+         (string-append "-datadir=" (@ self data-directory))]
+         (@ self options)))
       stdout-redirection: #false))
 
 (defmethod {stop-daemon BitcoinClient}
