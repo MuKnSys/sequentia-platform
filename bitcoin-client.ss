@@ -23,7 +23,7 @@
 
 ; Bitcoin
 (defclass BitcoinClient 
-  (data-directory options host port username password))
+  (data-directory options host port username password log-file))
 
 (defmethod {daemon-executable-name BitcoinClient}
   (lambda (self) "bitcoind"))
@@ -46,7 +46,8 @@
     (run-process 
       (append 
         [{daemon-executable-name self}
-         (string-append "-datadir=" (@ self data-directory))]
+         (string-append "-datadir=" (@ self data-directory))
+         (string-append "-debuglogfile=" (@ self log-file))]
          (@ self options)))
       stdout-redirection: #false))
 
@@ -78,8 +79,9 @@
 ; CLI
 (defmethod {run-cli-command BitcoinClient}
   (lambda (self arguments)
-    (def datadir (@ self data-directory))
-    (run-process [{cli-executable-name self} (string-append "-datadir=" datadir) arguments ...]
+    (run-process [{cli-executable-name self} 
+      (string-append "-datadir=" (@ self data-directory))
+      arguments ...]
       stdout-redirection: #f)))
 
 ; Blockchain state
@@ -190,6 +192,11 @@
       label: (label "") 
       address-type: (address-type #!void))
     {run-json-rpc self "getnewaddress" [label address-type]}))
+
+(defmethod {get-raw-change-address BitcoinClient} 
+  (lambda (self
+      address-type: (address-type #!void))
+    {run-json-rpc self "getrawchangeaddress" [address-type]}))
 
 (defmethod {send-to-address BitcoinClient} 
   (lambda (self address amount 

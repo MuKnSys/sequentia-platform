@@ -16,12 +16,15 @@
     host: "127.0.0.1"
     port: 18884
     username: "user1"
-    password: "password1"))
+    password: "password1"
+    log-file: "../debug.log"))
 
 (def (initialize-test)
   (def database-path (string-append (@ client data-directory) "/elementsregtest"))
   (when (file-exists? database-path)
     (run-process ["rm" "-rf" database-path]))
+  (when (file-exists? (@ client log-file))
+    (run-process ["truncate" "-s" "0" (@ client log-file)]))
   {restart-daemon client}
   {initialize-wallet client}
   {rescan-blockchain client})
