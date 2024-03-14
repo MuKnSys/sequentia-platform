@@ -116,8 +116,7 @@
   (initialize-test)
   (def asset-address {get-new-address client address-type: "bech32"})
   (def raw-tx {create-raw-transaction client [] []})
-  (def funded-raw-tx {fund-raw-transaction client raw-tx})
-  {decode-raw-transaction client (hash-get funded-raw-tx "hex")}
+  {decode-raw-transaction client raw-tx}
   (def issuance (make-Issuance
     asset_amount: 1000
     asset_address: asset-address
@@ -125,7 +124,7 @@
     token_address: #!void
     blind: #false
     contract_hash: {default-contract-hash client}))
-  {raw-issue-asset client funded-raw-tx [issuance]})
+  {raw-issue-asset client raw-tx [issuance]})
 
 (define-entry-point (test-custom-asset-transaction)
   (help: "Run test scenario for custom asset transaction" getopt: [])
@@ -146,7 +145,7 @@
   (def bitcoin-utxo (find (lambda (utxo) (equal? (@ utxo asset) bitcoin-hex)) utxos))
   (def asset-utxo (find (lambda (utxo) (equal? (@ utxo asset) asset-hex)) utxos))
   (def destination-address {get-new-address client address-type: "bech32"})
-  (def change-address {get-new-address client address-type: "bech32"})
+  (def change-address {get-raw-change-address client address-type: "bech32"})
   (def inputs
     [(make-TxInput txid: (@ asset-utxo txid) vout: (@ asset-utxo vout) sequence: #!void)
      (make-TxInput txid: (@ bitcoin-utxo txid) vout: (@ bitcoin-utxo vout) sequence: #!void)])
