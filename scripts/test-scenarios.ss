@@ -183,7 +183,14 @@
      (make-TxAnyFeeOutput amount: 0.01 asset: asset-hex)])
   (def raw-tx {create-raw-transaction client inputs outputs})
   (def signed-raw-tx (hash-get {sign-raw-transaction-with-wallet client raw-tx} "hex"))
-  {send-raw-transaction client signed-raw-tx})
+  {send-raw-transaction client signed-raw-tx}
+    
+  ; Pay out rewards
+  (def rewards-address {get-new-address client address-type: "bech32"})
+  {generate-to-address client 1 rewards-address}
+  {rescan-blockchain client}
+  (def rewards {list-unspent client addresses: [rewards-address]})
+  (assert! (= (length rewards) 1)))
 
 
 ; Debugging chain state
