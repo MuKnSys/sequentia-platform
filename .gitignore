@@ -1,4 +1,5 @@
 *~
+version.ss
 build-deps
 /manifest.ss
 .gerbil
