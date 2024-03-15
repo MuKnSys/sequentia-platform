@@ -25,4 +25,7 @@ repl:
 	gxi -:te
 
 build-sequentia:
-	cd ../SEQ-Core-Elements && make -j 8
+	cd ../SEQ-Core-Elements; ./autogen.sh; ./configure; make -j $(nproc)
+
+rebuild-sequentia:
+	cd ../SEQ-Core-Elements; make -j $(nproc)
