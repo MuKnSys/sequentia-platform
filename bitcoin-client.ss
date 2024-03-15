@@ -222,7 +222,7 @@
       include-unsafe: (include-unsafe #!void)
       query-options: (query-options #!void))
     (def utxo-json-objects {run-json-rpc self "listunspent" [min-conf max-conf addresses include-unsafe query-options]})
-    (map (cut trivial-json-object->class (make-Utxo) <>) utxo-json-objects)))
+    (map (cut trivial-json-object->class ##Utxo <>) utxo-json-objects)))
 
 (defmethod {get-balance BitcoinClient}
   (lambda (self
