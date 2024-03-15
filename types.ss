@@ -68,17 +68,6 @@
    desc
    safe))
 
-(def (json-object->utxo json-object)
-  (def utxo (make-Utxo))
-  (def class-info (class->list utxo))
-  (def type (car class-info))
-  (def fields (plist->alist (cdr class-info)))
-  (for-each (lambda (field)
-    (def name (car field))
-    (class-slot-set! type utxo name (hash-get json-object (symbol->string (keyword->symbol name)))))
-    fields)
-  utxo)
-
 ; Issuance
 (defclass (Issuance JSON)
   (asset_amount
