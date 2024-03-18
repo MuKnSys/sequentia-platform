@@ -55,6 +55,7 @@
    label
    scriptPubKey
    amount
+   amountcommitment
    asset
    assetcommitment
    amountblinder
