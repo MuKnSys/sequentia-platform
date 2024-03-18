@@ -97,8 +97,8 @@
 ; Transactions
 (defmethod {create-raw-transaction BitcoinClient}
   (lambda (self inputs outputs 
-    locktime: (locktime 0) 
-    replaceable: (replaceable #f))
+    locktime: (locktime #!void) 
+    replaceable: (replaceable #!void))
   {run-json-rpc self "createrawtransaction" [inputs outputs locktime replaceable]}))
 
 (defmethod {sign-raw-transaction-with-key BitcoinClient}
@@ -128,8 +128,8 @@
 
 (defmethod {get-transaction BitcoinClient}
   (lambda (self tx-id
-      include-watch-only: (include-watch-only #true)
-      verbose: (verbose #false))
+      include-watch-only: (include-watch-only #!void)
+      verbose: (verbose #!void))
     {run-json-rpc self "gettransaction" [tx-id include-watch-only verbose]}))
 
 ; Wallet
@@ -183,13 +183,13 @@
 
 (defmethod {rescan-blockchain BitcoinClient}
   (lambda (self
-      start-height: (start-height 0)
+      start-height: (start-height #!void)
       stop-height: (stop-height #!void))
     {run-json-rpc self "rescanblockchain" [start-height]}))
 
 (defmethod {get-new-address BitcoinClient} 
   (lambda (self 
-      label: (label "") 
+      label: (label #!void) 
       address-type: (address-type #!void))
     {run-json-rpc self "getnewaddress" [label address-type]}))
 
@@ -202,16 +202,16 @@
   (lambda (self address amount 
       comment: (comment #!void)
       comment-to: (comment-to #!void) 
-      subtract-fee-from-amount: (subtract-fee-from-amount #false) 
+      subtract-fee-from-amount: (subtract-fee-from-amount #!void) 
       replaceable: (replaceable #!void)
       conf-target: (conf-target #!void)
-      estimate-mode: (estimate-mode "unset")
+      estimate-mode: (estimate-mode #!void)
       avoid-reuse: (avoid-reuse #!void))
     {run-json-rpc self "sendtoaddress" [address amount comment comment-to subtract-fee-from-amount replaceable conf-target estimate-mode avoid-reuse]}))
 
 (defmethod {generate-to-address BitcoinClient}
   (lambda (self n-blocks address
-      max-tries: (max-tries 1000000))
+      max-tries: (max-tries #!void))
     {run-json-rpc self "generatetoaddress" [n-blocks address max-tries]}))
 
 (defmethod {list-unspent BitcoinClient}
@@ -226,7 +226,7 @@
 
 (defmethod {get-balance BitcoinClient}
   (lambda (self
-      min-conf: (min-conf 0)
+      min-conf: (min-conf #!void)
       include-watch-only: (include-watch-only #!void)
       avoid-reuse: (avoid-reuse #!void))
     {run-json-rpc self "getbalance" ["*" min-conf include-watch-only avoid-reuse]}))

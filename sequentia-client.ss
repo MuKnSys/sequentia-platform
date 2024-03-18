@@ -9,14 +9,15 @@
   (lambda (self address amount 
       comment: (comment #!void)
       comment-to: (comment-to #!void) 
-      subtract-fee-from-amount: (subtract-fee-from-amount #false) 
+      subtract-fee-from-amount: (subtract-fee-from-amount #!void) 
       replaceable: (replaceable #!void)
       conf-target: (conf-target #!void)
-      estimate-mode: (estimate-mode "unset")
+      estimate-mode: (estimate-mode #!void)
       avoid-reuse: (avoid-reuse #!void)
       asset-label: (asset-label #!void)
       ignore-blind-fail: (ignore-blind-fail #!void)
       fee-rate: (fee-rate #!void)
       fee-asset-label: (fee-asset-label #!void)
       verbose: (verbose #!void))
-    {run-json-rpc self "sendtoaddress" [address amount comment comment-to subtract-fee-from-amount replaceable conf-target estimate-mode avoid-reuse asset-label ignore-blind-fail fee-rate fee-asset-label verbose]}))
+    {run-json-rpc self "sendtoaddress"
+      [address amount comment comment-to subtract-fee-from-amount replaceable conf-target estimate-mode avoid-reuse asset-label ignore-blind-fail fee-rate fee-asset-label verbose]}))

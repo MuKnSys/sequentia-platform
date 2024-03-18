@@ -29,10 +29,10 @@
   (lambda (self address amount 
       comment: (comment #!void)
       comment-to: (comment-to #!void) 
-      subtract-fee-from-amount: (subtract-fee-from-amount #false) 
+      subtract-fee-from-amount: (subtract-fee-from-amount #!void) 
       replaceable: (replaceable #!void)
       conf-target: (conf-target #!void)
-      estimate-mode: (estimate-mode "unset")
+      estimate-mode: (estimate-mode #!void)
       avoid-reuse: (avoid-reuse #!void)
       asset-label: (asset-label #!void)
       ignore-blind-fail: (ignore-blind-fail #!void)
@@ -50,8 +50,8 @@
 
 (defmethod {issue-asset ElementsClient}
   (lambda (self asset-amount token-amount 
-      blind: (blind #false) 
-      contract-hash: (contract-hash {default-contract-hash self}))
+      blind: (blind #!void) 
+      contract-hash: (contract-hash #!void)
     {run-json-rpc self "issueasset" [asset-amount token-amount blind contract-hash]}))
 
 (defmethod {raw-issue-asset ElementsClient}
