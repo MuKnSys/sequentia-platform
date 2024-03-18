@@ -7,10 +7,10 @@
   :std/misc/process
   :std/sugar
   :std/text/json
-  :mukn/sequentia/elements-client
+  :mukn/sequentia/sequentia-client
   :mukn/sequentia/types)
 
-(def client (make-ElementsClient
+(def client (make-SequentiaClient
     data-directory: "./data/elementsdir1"
     options: ["-logsourcelocations"]
     host: "127.0.0.1"
@@ -157,8 +157,8 @@
   (def signed-raw-tx (hash-get {sign-raw-transaction-with-wallet client raw-tx} "hex"))
   {send-raw-transaction client signed-raw-tx})
 
-(define-entry-point (test-any-fee-transaction)
-  (help: "Run test scenario for any fee transaction" getopt: [])
+(define-entry-point (test-raw-any-fee-transaction)
+  (help: "Run test scenario for raw any fee transaction" getopt: [])
   (initialize-test)
 
   ; Create asset
@@ -192,6 +192,40 @@
   (def rewards {list-unspent client addresses: [rewards-address]})
   (assert! (= (length rewards) 1)))
 
+(define-entry-point (test-any-fee-transaction)
+  (help: "Run test scenario for any fee transaction" getopt: [])
+  (initialize-test)
+
+  (displayln "Generate asset")
+  (def asset {issue-asset client 100 0})
+  (def asset-hex (hash-get asset "asset"))
+  {rescan-blockchain client}
+  {get-balances client}
+
+  (displayln "Generate block")
+  (def funding-address {get-new-address client address-type: "bech32"})
+  {generate-to-address client 1 funding-address}
+  {rescan-blockchain client}
+  {get-balances client}
+
+  (displayln "Send asset to new address")
+  {send-to-address client funding-address 1 asset-label: asset-hex}
+  {generate-to-address client 1 funding-address}
+  {rescan-blockchain client}
+  {get-balances client}
+
+  (displayln "Pay fee with new asset")
+  (def destination-address {get-new-address client address-type: "bech32"})
+  {send-to-address client destination-address 1 asset-label: asset-hex fee-rate: 1}
+    
+  (displayln "Pay out rewards")
+  (def rewards-address {get-new-address client address-type: "bech32"})
+  {generate-to-address client 101 rewards-address}
+  {rescan-blockchain client}
+  (def rewards {list-unspent client addresses: [rewards-address]})
+  (assert! (= (length rewards) 1))
+  (def reward-utxo (car rewards))
+  (assert! (equal? (@ reward-utxo asset) asset-hex)))
 
 ; Debugging chain state
 (define-entry-point (dump-asset-labels)
