@@ -1,4 +1,4 @@
-{ withLocalSequentia ? false 
+{ withLocalSequentia ? true 
 }:
 let pkgs = import ./pkgs.nix;
     sequentia = if withLocalSequentia then pkgs.callPackage ../SEQ-Core-Elements/default.nix {} else pkgs.sequentia;
