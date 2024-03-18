@@ -51,7 +51,7 @@
 (defmethod {issue-asset ElementsClient}
   (lambda (self asset-amount token-amount 
       blind: (blind #!void) 
-      contract-hash: (contract-hash #!void)
+      contract-hash: (contract-hash #!void))
     {run-json-rpc self "issueasset" [asset-amount token-amount blind contract-hash]}))
 
 (defmethod {raw-issue-asset ElementsClient}
