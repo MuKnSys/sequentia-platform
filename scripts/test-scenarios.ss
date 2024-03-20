@@ -224,5 +224,5 @@
   (deinitialize-test))
 
 (current-program "test-scenarios")
-(set-default-entry-point! 'start)
+(set-default-entry-point! 'test-no-coin-transaction)
 (define-multicall-main)
