@@ -11,12 +11,12 @@
   :mukn/sequentia/test-client
   :mukn/sequentia/types)
  
-(def (initialize-test)
+(def (setup)
   {restart-daemon client}
   {initialize-wallet client}
   {rescan-blockchain client})
 
-(def (deinitialize-test)
+(def (teardown)
   {stop-daemon client}
   (def database-path (string-append (@ client data-directory) "/elementsregtest"))
   (when (file-exists? database-path)
@@ -25,7 +25,7 @@
 ; Test scenarios
 (define-entry-point (normal-transaction)
   (help: "Run test scenario for normal transaction" getopt: [])
-  (initialize-test)
+  (setup)
   (def send-address {get-new-address client address-type: "bech32"})
   (def receive-address {get-new-address client address-type: "bech32"})
   (def change-address {get-new-address client address-type: "bech32"})
@@ -41,11 +41,11 @@
   (def tx {decode-raw-transaction client raw-tx})
   (def signed-raw-tx (hash-get {sign-raw-transaction-with-wallet client raw-tx} "hex"))
   {send-raw-transaction client signed-raw-tx}
-  (deinitialize-test))
+  (teardown))
 
 (define-entry-point (zero-fee-transaction)
   (help: "Run test scenario for zero fee transaction" getopt: [])
-  (initialize-test)
+  (setup)
   {rescan-blockchain client}
   {get-balances client}
   (def send-address {get-new-address client address-type: "bech32"})
@@ -64,12 +64,12 @@
   (def tx {decode-raw-transaction client raw-tx})
   (def signed-raw-tx (hash-get {sign-raw-transaction-with-wallet client raw-tx} "hex"))
   {send-raw-transaction client signed-raw-tx}
-  (deinitialize-test))
+  (teardown))
 
 
 (define-entry-point (zero-fee-issuance)
   (help: "Run test scenario for zero fee issuance" getopt: [])
-  (initialize-test)
+  (setup)
   (def send-address {get-new-address client address-type: "bech32"})
   (def receive-address {get-new-address client address-type: "bech32"})
   (def asset-address {get-new-address client address-type: "bech32"})
@@ -92,11 +92,11 @@
     blind: #false
     contract_hash: {default-contract-hash client}))
   {raw-issue-asset client hex [issuance]}
-  (deinitialize-test))
+  (teardown))
 
 (define-entry-point (zero-input-issuance)
   (help: "Run test scenario for zero input issuance" getopt: [])
-  (initialize-test)
+  (setup)
   (def asset-address {get-new-address client address-type: "bech32"})
   (def raw-tx {create-raw-transaction client [] []})
   {decode-raw-transaction client raw-tx}
@@ -108,11 +108,11 @@
     blind: #false
     contract_hash: {default-contract-hash client}))
   {raw-issue-asset client raw-tx [issuance]}
-  (deinitialize-test))
+  (teardown))
 
 (define-entry-point (custom-asset-transaction)
   (help: "Run test scenario for custom asset transaction" getopt: [])
-  (initialize-test)
+  (setup)
 
   (displayln "Create asset")
   (def asset {issue-asset client 10 0})
@@ -140,11 +140,11 @@
   (def raw-tx {create-raw-transaction client inputs outputs})
   (def signed-raw-tx (hash-get {sign-raw-transaction-with-wallet client raw-tx} "hex"))
   {send-raw-transaction client signed-raw-tx}
-  (deinitialize-test))
+  (teardown))
 
 (define-entry-point (raw-no-coin-transaction)
   (help: "Run test scenario for raw no coin transaction" getopt: [])
-  (initialize-test)
+  (setup)
 
   (displayln "Create asset")
   (def asset {issue-asset client 100 0})
@@ -176,11 +176,11 @@
   {rescan-blockchain client}
   (def rewards {list-unspent client addresses: [rewards-address]})
   (assert! (= (length rewards) 1))
-  (deinitialize-test))
+  (teardown))
 
 (define-entry-point (no-coin-transaction)
   (help: "Run test scenario for no coin transaction" getopt: [])
-  (initialize-test)
+  (setup)
 
   (displayln "Generate asset")
   (def asset {issue-asset client 100 0})
@@ -213,7 +213,7 @@
   (assert! (= (length rewards) 1))
   (def reward-utxo (car rewards))
   (assert! (equal? (@ reward-utxo asset) asset-hex))
-  (deinitialize-test))
+  (teardown))
 
 (current-program "test-scenarios")
 (set-default-entry-point! 'no-coin-transaction)
