@@ -1,0 +1,3 @@
+[submodule "SEQ-Core-Elements"]
+	path = SEQ-Core-Elements
+	url = https://github.com/MuKnIO/SEQ-Core-Elements
