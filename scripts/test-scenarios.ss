@@ -8,17 +8,9 @@
   :std/sugar
   :std/text/json
   :mukn/sequentia/sequentia-client
+  :mukn/sequentia/test-client
   :mukn/sequentia/types)
-
-(def client (make-SequentiaClient
-    data-directory: "./data"
-    options: ["-logsourcelocations"]
-    host: "127.0.0.1"
-    port: 18884
-    username: "user1"
-    password: "password1"
-    log-file: "../debug.log"))
-  
+ 
 (def (initialize-test)
   {restart-daemon client}
   {initialize-wallet client}

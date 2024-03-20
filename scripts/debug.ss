@@ -1,22 +1,13 @@
 #!/usr/bin/env gxi
 
 (import
-  :std/assert
   :std/cli/getopt
   :std/cli/multicall
   :std/misc/process
   :std/sugar
   :mukn/sequentia/sequentia-client
-  :mukn/sequentia/types)
-
-(def client (make-SequentiaClient
-    data-directory: "./data"
-    options: ["-logsourcelocations"]
-    host: "127.0.0.1"
-    port: 18884
-    username: "user1"
-    password: "password1"
-    log-file: "../debug.log"))
+  :mukn/sequentia/types
+  :mukn/sequentia/test-client)
 
 ; Daemon management
 (define-entry-point (start)
