@@ -11,7 +11,7 @@
   :mukn/sequentia/types)
 
 (def client (make-SequentiaClient
-    data-directory: "./data/elementsdir1"
+    data-directory: "./data"
     options: ["-logsourcelocations"]
     host: "127.0.0.1"
     port: 18884
@@ -157,8 +157,8 @@
   (def signed-raw-tx (hash-get {sign-raw-transaction-with-wallet client raw-tx} "hex"))
   {send-raw-transaction client signed-raw-tx})
 
-(define-entry-point (test-raw-any-fee-transaction)
-  (help: "Run test scenario for raw any fee transaction" getopt: [])
+(define-entry-point (test-raw-no-coin-transaction)
+  (help: "Run test scenario for raw no coin transaction" getopt: [])
   (initialize-test)
 
   ; Create asset
@@ -192,8 +192,8 @@
   (def rewards {list-unspent client addresses: [rewards-address]})
   (assert! (= (length rewards) 1)))
 
-(define-entry-point (test-any-fee-transaction)
-  (help: "Run test scenario for any fee transaction" getopt: [])
+(define-entry-point (test-no-coin-transaction)
+  (help: "Run test scenario for no coin transaction" getopt: [])
   (initialize-test)
 
   (displayln "Generate asset")
