@@ -23,7 +23,7 @@
     (run-process ["rm" "-rf" database-path])))
 
 ; Test scenarios
-(define-entry-point (test-normal-transaction)
+(define-entry-point (normal-transaction)
   (help: "Run test scenario for normal transaction" getopt: [])
   (initialize-test)
   (def send-address {get-new-address client address-type: "bech32"})
@@ -43,7 +43,7 @@
   {send-raw-transaction client signed-raw-tx}
   (deinitialize-test))
 
-(define-entry-point (test-zero-fee-transaction)
+(define-entry-point (zero-fee-transaction)
   (help: "Run test scenario for zero fee transaction" getopt: [])
   (initialize-test)
   {rescan-blockchain client}
@@ -67,7 +67,7 @@
   (deinitialize-test))
 
 
-(define-entry-point (test-zero-fee-issuance)
+(define-entry-point (zero-fee-issuance)
   (help: "Run test scenario for zero fee issuance" getopt: [])
   (initialize-test)
   (def send-address {get-new-address client address-type: "bech32"})
@@ -94,7 +94,7 @@
   {raw-issue-asset client hex [issuance]}
   (deinitialize-test))
 
-(define-entry-point (test-zero-input-issuance)
+(define-entry-point (zero-input-issuance)
   (help: "Run test scenario for zero input issuance" getopt: [])
   (initialize-test)
   (def asset-address {get-new-address client address-type: "bech32"})
@@ -110,7 +110,7 @@
   {raw-issue-asset client raw-tx [issuance]}
   (deinitialize-test))
 
-(define-entry-point (test-custom-asset-transaction)
+(define-entry-point (custom-asset-transaction)
   (help: "Run test scenario for custom asset transaction" getopt: [])
   (initialize-test)
 
@@ -142,7 +142,7 @@
   {send-raw-transaction client signed-raw-tx}
   (deinitialize-test))
 
-(define-entry-point (test-raw-no-coin-transaction)
+(define-entry-point (raw-no-coin-transaction)
   (help: "Run test scenario for raw no coin transaction" getopt: [])
   (initialize-test)
 
@@ -178,7 +178,7 @@
   (assert! (= (length rewards) 1))
   (deinitialize-test))
 
-(define-entry-point (test-no-coin-transaction)
+(define-entry-point (no-coin-transaction)
   (help: "Run test scenario for no coin transaction" getopt: [])
   (initialize-test)
 
@@ -216,5 +216,5 @@
   (deinitialize-test))
 
 (current-program "test-scenarios")
-(set-default-entry-point! 'test-no-coin-transaction)
+(set-default-entry-point! 'no-coin-transaction)
 (define-multicall-main)
