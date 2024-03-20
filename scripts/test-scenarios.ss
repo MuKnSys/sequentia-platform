@@ -114,16 +114,16 @@
   (help: "Run test scenario for custom asset transaction" getopt: [])
   (initialize-test)
 
-  ; Create asset
+  (displayln "Create asset")
   (def asset {issue-asset client 10 0})
   (def asset-hex (hash-get asset "asset"))
 
-  ; Generate block
+  (displayln "Generate block")
   (def funding-address {get-new-address client address-type: "bech32"})
   {generate-to-address client 1 funding-address}
   {rescan-blockchain client}
 
-  ; Pay fee with bitcoin
+  (displayln "Pay fee with bitcoin")
   (def utxos {list-unspent client})
   (def bitcoin-hex (hash-get {dump-asset-labels client} "bitcoin"))
   (def bitcoin-utxo (find (lambda (utxo) (equal? (@ utxo asset) bitcoin-hex)) utxos))
@@ -146,18 +146,18 @@
   (help: "Run test scenario for raw no coin transaction" getopt: [])
   (initialize-test)
 
-  ; Create asset
+  (displayln "Create asset")
   (def asset {issue-asset client 100 0})
   (def asset-hex (hash-get asset "asset"))
 
-  ; Generate block
+  (displayln "Generate block")
   (def funding-address {get-new-address client address-type: "bech32"})
   {generate-to-address client 1 funding-address}
   {send-to-address client funding-address 10 asset-label: asset-hex}
   {generate-to-address client 1 funding-address}
   {rescan-blockchain client}
 
-  ; Pay fee with new asset
+  (displayln "Pay fee with new asset")
   (def utxos {list-unspent client addresses: [funding-address]})
   (def utxo (find (lambda (utxo) (equal? (@ utxo asset) asset-hex)) utxos))
   (def destination-address {get-new-address client address-type: "bech32"})
@@ -170,7 +170,7 @@
   (def signed-raw-tx (hash-get {sign-raw-transaction-with-wallet client raw-tx} "hex"))
   {send-raw-transaction client signed-raw-tx}
     
-  ; Pay out rewards
+  (displayln "Pay out rewards")
   (def rewards-address {get-new-address client address-type: "bech32"})
   {generate-to-address client 1 rewards-address}
   {rescan-blockchain client}
