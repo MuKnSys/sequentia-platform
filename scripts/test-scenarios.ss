@@ -18,16 +18,17 @@
     username: "user1"
     password: "password1"
     log-file: "../debug.log"))
-
+  
 (def (initialize-test)
-  (def database-path (string-append (@ client data-directory) "/elementsregtest"))
-  (when (file-exists? database-path)
-    (run-process ["rm" "-rf" database-path]))
-  (when (file-exists? (@ client log-file))
-    (run-process ["truncate" "-s" "0" (@ client log-file)]))
   {restart-daemon client}
   {initialize-wallet client}
   {rescan-blockchain client})
+
+(def (deinitialize-test)
+  {stop-daemon client}
+  (def database-path (string-append (@ client data-directory) "/elementsregtest"))
+  (when (file-exists? database-path)
+    (run-process ["rm" "-rf" database-path])))
 
 ; Test scenarios
 (define-entry-point (test-normal-transaction)
@@ -47,7 +48,8 @@
   (def raw-tx {create-raw-transaction client inputs outputs})
   (def tx {decode-raw-transaction client raw-tx})
   (def signed-raw-tx (hash-get {sign-raw-transaction-with-wallet client raw-tx} "hex"))
-  {send-raw-transaction client signed-raw-tx})
+  {send-raw-transaction client signed-raw-tx}
+  (deinitialize-test))
 
 (define-entry-point (test-zero-fee-transaction)
   (help: "Run test scenario for zero fee transaction" getopt: [])
@@ -69,7 +71,8 @@
   (def raw-tx {create-raw-transaction client inputs outputs})
   (def tx {decode-raw-transaction client raw-tx})
   (def signed-raw-tx (hash-get {sign-raw-transaction-with-wallet client raw-tx} "hex"))
-  {send-raw-transaction client signed-raw-tx})
+  {send-raw-transaction client signed-raw-tx}
+  (deinitialize-test))
 
 
 (define-entry-point (test-zero-fee-issuance)
@@ -96,7 +99,8 @@
     token_address: #!void
     blind: #false
     contract_hash: {default-contract-hash client}))
-  {raw-issue-asset client hex [issuance]})
+  {raw-issue-asset client hex [issuance]}
+  (deinitialize-test))
 
 (define-entry-point (test-zero-input-issuance)
   (help: "Run test scenario for zero input issuance" getopt: [])
@@ -111,7 +115,8 @@
     token_address: #!void
     blind: #false
     contract_hash: {default-contract-hash client}))
-  {raw-issue-asset client raw-tx [issuance]})
+  {raw-issue-asset client raw-tx [issuance]}
+  (deinitialize-test))
 
 (define-entry-point (test-custom-asset-transaction)
   (help: "Run test scenario for custom asset transaction" getopt: [])
@@ -142,7 +147,8 @@
      (make-TxAnyFeeOutput amount: 0.01 asset: bitcoin-hex)])
   (def raw-tx {create-raw-transaction client inputs outputs})
   (def signed-raw-tx (hash-get {sign-raw-transaction-with-wallet client raw-tx} "hex"))
-  {send-raw-transaction client signed-raw-tx})
+  {send-raw-transaction client signed-raw-tx}
+  (deinitialize-test))
 
 (define-entry-point (test-raw-no-coin-transaction)
   (help: "Run test scenario for raw no coin transaction" getopt: [])
@@ -177,7 +183,8 @@
   {generate-to-address client 1 rewards-address}
   {rescan-blockchain client}
   (def rewards {list-unspent client addresses: [rewards-address]})
-  (assert! (= (length rewards) 1)))
+  (assert! (= (length rewards) 1))
+  (deinitialize-test))
 
 (define-entry-point (test-no-coin-transaction)
   (help: "Run test scenario for no coin transaction" getopt: [])
@@ -213,7 +220,8 @@
   (def rewards {list-unspent client addresses: [rewards-address]})
   (assert! (= (length rewards) 1))
   (def reward-utxo (car rewards))
-  (assert! (equal? (@ reward-utxo asset) asset-hex)))
+  (assert! (equal? (@ reward-utxo asset) asset-hex))
+  (deinitialize-test))
 
 (current-program "test-scenarios")
 (set-default-entry-point! 'start)
