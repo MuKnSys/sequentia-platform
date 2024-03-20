@@ -209,15 +209,16 @@
   {get-balances client}
 
   (displayln "Send asset to new address")
-  {send-to-address client funding-address 1 asset-label: asset-hex}
+  (def bitcoin-hex (hash-get {dump-asset-labels client} "bitcoin"))
+  {send-to-address client funding-address 1 asset-label: asset-hex fee-asset-label: bitcoin-hex}
   {generate-to-address client 1 funding-address}
   {rescan-blockchain client}
   {get-balances client}
 
   (displayln "Pay fee with new asset")
   (def destination-address {get-new-address client address-type: "bech32"})
-  {send-to-address client destination-address 1 asset-label: asset-hex fee-rate: 1}
-    
+  {send-to-address client destination-address 1 asset-label: asset-hex}
+
   (displayln "Pay out rewards")
   (def rewards-address {get-new-address client address-type: "bech32"})
   {generate-to-address client 101 rewards-address}
