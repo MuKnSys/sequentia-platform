@@ -28,12 +28,24 @@
   (block)
   (teardown))
 
+(def HEADER "\033[95m")
+(def OKBLUE "\033[94m")
+(def OKCYAN "\033[96m")
+(def OKGREEN "\033[92m")
+(def WARNING "\033[93m")
+(def FAIL "\033[91m")
+(def ENDC "\033[0m")
+(def BOLD "\033[1m")
+(def UNDERLINE "\033[4m")
+
 (def (run-cli name arguments)
     (def datadir-argument (string-append "-datadir=" (@ client data-directory)))
     (def command ["elements-cli" datadir-argument name arguments ...]) 
-    (displayln "$" (string-list->string command))
+    (displayln "$" BOLD OKCYAN (string-list->string command) ENDC ENDC)
     (def result (run-process command))
+    (thread-sleep! 1)
     (displayln result)
+    (thread-sleep! 2)
     (string-trim-spaces result))
 
 (define-entry-point (no-coin-transaction)
@@ -55,13 +67,7 @@
     (run-cli "rescanblockchain" [])
 
     ; Pay fee with new asset
-    (def destination-address (run-cli "getnewaddress" ["demo" "bech32"]))
-    (run-cli "sendtoaddress" [destination-address "1" "null" "null" "null" "null" "null" "unset" "null" asset-hex])
-    
-    ; Pay out rewards
-    (def rewards-address (run-cli "getnewaddress" ["demo" "bech32"]))
-    (run-cli "generatetoaddress" ["101" rewards-address])
-    (run-cli "rescanblockchain" []))))
+    (run-cli "sendtoaddress" [funding-address "1" "null" "null" "null" "null" "null" "unset" "null" asset-hex]))))
 
 (def (string-list->string list)
     (foldl (lambda (current accumulated) (string-append accumulated " " current)) "" list))
