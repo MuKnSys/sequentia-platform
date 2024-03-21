@@ -194,8 +194,7 @@
     {get-balances client}
 
     (displayln "Send asset to new address")
-    (def bitcoin-hex (hash-get {dump-asset-labels client} "bitcoin"))
-    {send-to-address client funding-address 1 asset-label: asset-hex fee-asset-label: bitcoin-hex}
+    {send-to-address client funding-address 1 asset-label: asset-hex fee-asset-label: "bitcoin"}
     {generate-to-address client 1 funding-address}
     {rescan-blockchain client}
     {get-balances client}
