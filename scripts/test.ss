@@ -12,6 +12,7 @@
   :mukn/sequentia/types)
  
 (def (setup)
+  (set! (@ client log-rpc?) #true)
   {restart-daemon client}
   {initialize-wallet client}
   {rescan-blockchain client})

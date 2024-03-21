@@ -23,7 +23,7 @@
 
 ; Bitcoin
 (defclass BitcoinClient 
-  (data-directory options host port username password log-file))
+  (data-directory options host port username password log-file log-rpc?))
 
 (defmethod {daemon-executable-name BitcoinClient}
   (lambda (self) "bitcoind"))
@@ -74,7 +74,7 @@
     (json-rpc {rpc-server-url self} method-name params
       auth: [basic: (@ self username) (@ self password)]
       result-decoder: identity
-      log: (lambda (log) (displayln log)))))
+      log: (lambda (log) (when (@ self log-rpc?) (displayln log))))))
 
 ; CLI
 (defmethod {run-cli-command BitcoinClient}
