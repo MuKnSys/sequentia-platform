@@ -7,7 +7,8 @@
 (def (files)
   [(all-gerbil-modules) ...
    "scripts/test"
-   "scripts/debug"])
+   "scripts/debug"
+   "scripts/demo"])
 
 (init-build-environment!
   name: "Gerbil-sequentia"
