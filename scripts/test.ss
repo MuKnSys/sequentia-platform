@@ -212,6 +212,6 @@
     (def reward-utxo (car rewards))
     (assert! (equal? (@ reward-utxo asset) asset-hex)))))
 
-(current-program "test-scenarios")
+(current-program "test")
 (set-default-entry-point! 'no-coin-transaction)
 (define-multicall-main)

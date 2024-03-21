@@ -6,7 +6,7 @@
 
 (def (files)
   [(all-gerbil-modules) ...
-   "scripts/test-scenarios"
+   "scripts/test"
    "scripts/debug"])
 
 (init-build-environment!
