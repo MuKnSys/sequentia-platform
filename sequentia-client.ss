@@ -20,4 +20,4 @@
       fee-asset-label: (fee-asset-label #!void)
       verbose: (verbose #!void))
     {run-json-rpc self "sendtoaddress"
-      [address amount comment comment-to subtract-fee-from-amount replaceable conf-target estimate-mode avoid-reuse asset-label ignore-blind-fail fee-rate verbose]}))
+      [address amount comment comment-to subtract-fee-from-amount replaceable conf-target estimate-mode avoid-reuse asset-label ignore-blind-fail fee-rate fee-asset-label verbose]}))
