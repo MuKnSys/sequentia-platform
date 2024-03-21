@@ -4,11 +4,11 @@ Test scripts and development tools for [SEQ-Core-Elements](https://github.com/Se
 
 ## Building
 
-Enter nix shell, which will provide all the build dependencies necessary for both `SEQ-Core-Elements` and `gerbil-sequentia`:
+Enter nix shell, which will provide all the build tools and dependencies for both `SEQ-Core-Elements` and `gerbil-sequentia`:
 ```shell
 nix-shell
 ```
-To build `sequentia`, first import the source code from the submodule `SEQ-Core-Elements` by running:
+To build `SEQ-Core-Elements`, first import the source code from the submodule by running:
 ```shell
 git submodule update --init --recursive
 ```
@@ -20,8 +20,9 @@ To build `gerbil-sequentia`, run:
 ```shell
 gerbil build
 ```
+When making changes to `SEQ-Core-Elements` source, use `make rebuild-sequentia` to avoid recompiling from scratch every time.
 
-### Testing
+## Testing
 
 All test scenarios will spin up a new node, then destroy it immediately after if the test passes successfully. If the test fails, the node will continue running so that its state is still available for debugging purposes.
 
@@ -31,3 +32,11 @@ For example, to run the test scenario for the No Coin feature:
 ```shell
 ./scripts/test.ss no-coin-transaction
 ```
+
+## Debugging
+
+To build `SEQ-Core-Elements` with debugging enabled, run:
+```shell
+make build-sequentia-debug
+```
+Then use `make rebuild-sequentia` when making changes to the local source.

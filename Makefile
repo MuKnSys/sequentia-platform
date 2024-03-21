@@ -27,5 +27,8 @@ repl:
 build-sequentia:
 	cd ./SEQ-Core-Elements; ./autogen.sh; ./configure; make -j$(shell nproc)
 
+build-sequentia-debug:
+	cd ./SEQ-Core-Elements; make clean; ./autogen.sh; ./configure --enable-debug; make -j$(shell nproc)
+
 rebuild-sequentia:
 	cd ./SEQ-Core-Elements; make -j$(shell nproc)
