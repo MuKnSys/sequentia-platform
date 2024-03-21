@@ -13,6 +13,7 @@
   :mukn/sequentia/types)
  
 (def (setup)
+  (set! (@ client log-rpc?) #false)
   {restart-daemon client}
   {initialize-wallet client}
   {rescan-blockchain client})
@@ -40,13 +41,20 @@
 
 (def (run-cli name arguments)
     (def datadir-argument (string-append "-datadir=" (@ client data-directory)))
-    (def command ["elements-cli" datadir-argument name arguments ...]) 
-    (displayln "$" BOLD OKCYAN (string-list->string command) ENDC ENDC)
-    (def result (run-process command))
-    (thread-sleep! 1)
+    (def command ["elements-cli" datadir-argument name arguments ...])
+    (def display-command (map (lambda (command) (if (string? command) command (car command))) command))
+    (displayln "$" BOLD OKCYAN (string-list->string display-command) ENDC ENDC)
+    (def actual-command (map (lambda (command) (if (string? command) command (last command))) command))
+    (def result (run-process actual-command))
     (displayln result)
     (thread-sleep! 2)
     (string-trim-spaces result))
+
+(def (run-export name value)
+    (def command ["set" (string-append name "=" value)]) 
+    (displayln "$" BOLD OKCYAN (string-list->string command) ENDC ENDC)
+    (displayln)
+    (thread-sleep! 2))
 
 (define-entry-point (no-coin-transaction)
   (help: "Run test scenario for no coin transaction" getopt: [])
@@ -54,20 +62,23 @@
     ; Generate asset
     (def asset (run-cli "issueasset" ["100" "0" "false"]))
     (def asset-hex (hash-get (string->json-object asset) 'asset))
-    (run-cli "rescanblockchain" [])
+    (run-export "CUSTOM_ASSET" asset-hex)
+    (def custom-asset ["$CUSTOM_ASSET" asset-hex])
     
     ; Generate block
-    (def funding-address (run-cli "getnewaddress" ["demo" "bech32"]))
-    (run-cli "generatetoaddress" ["1" funding-address])
+    (def address-key (run-cli "getnewaddress" ["demo" "bech32"]))
+    (def address ["$ADDRESS" address-key])
+    (run-export "ADDRESS" address-key)
+    (run-cli "generatetoaddress" ["1" address])
     (run-cli "rescanblockchain" [])
 
     ; Send asset to new address
-    (run-cli "sendtoaddress" [funding-address "1" "null" "null" "null" "null" "null" "unset" "null" asset-hex "null" "null" "\"bitcoin\""])
-    (run-cli "generatetoaddress" ["1" funding-address])
+    (run-cli "sendtoaddress" [address "1" "null" "null" "null" "null" "null" "unset" "null" custom-asset "null" "null" "\"bitcoin\""])
+    (run-cli "generatetoaddress" ["1" address])
     (run-cli "rescanblockchain" [])
 
     ; Pay fee with new asset
-    (run-cli "sendtoaddress" [funding-address "1" "null" "null" "null" "null" "null" "unset" "null" asset-hex]))))
+    (run-cli "sendtoaddress" [address "1" "null" "null" "null" "null" "null" "unset" "null" custom-asset]))))
 
 (def (string-list->string list)
     (foldl (lambda (current accumulated) (string-append accumulated " " current)) "" list))
