@@ -12,6 +12,8 @@ in pkgs.mkShell {
 
     buildInputs = gerbilPackages ++ [
         pkgs.gerbil-unstable
+        pkgs.asciinema
+        pkgs.asciinema-agg
     ] ++ pkgs.lib.optionals (!withLocalSequentia) [sequentia];
 
     shellHook = ''
