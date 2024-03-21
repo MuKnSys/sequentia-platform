@@ -6,7 +6,7 @@
         "type": "lldb",
         "request": "launch",
         "program": "./SEQ-Core-Elements/src/elementsd",
-        "args": ["-datadir=../data", "-logsourcelocations"],
+        "args": ["-datadir=../data", "-logsourcelocations", "-daemon=0"],
         "cwd": "./SEQ-Core-Elements",
       }
     ]

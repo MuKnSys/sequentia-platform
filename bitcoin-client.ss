@@ -81,6 +81,7 @@
   (lambda (self arguments)
     (run-process [{cli-executable-name self} 
       (string-append "-datadir=" (@ self data-directory))
+      "-daemon=1"
       arguments ...]
       stdout-redirection: #f)))
 
