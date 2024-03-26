@@ -48,6 +48,23 @@
     (def signed-raw-tx (hash-get {sign-raw-transaction-with-wallet client raw-tx} "hex"))
     {send-raw-transaction client signed-raw-tx})))
 
+(define-entry-point (fund-transaction)
+  (help: "Run test scenario for fund transaction" getopt: [])
+  (run-test (lambda ()
+    (def send-address {get-new-address client address-type: "bech32"})
+    (def receive-address {get-new-address client address-type: "bech32"})
+    (def change-address {get-new-address client address-type: "bech32"})
+    (def bitcoin (hash-get {dump-asset-labels client} "bitcoin"))
+    (def utxo (last {list-unspent client}))
+    (def outputs
+      [(make-TxAddressOutput address: receive-address amount: 10 asset: bitcoin)
+       (make-TxAddressOutput address: change-address amount: (- (@ utxo amount) 10 0.01) asset: bitcoin)
+       (make-TxFeeOutput amount: 0.01)])
+    (def raw-tx {create-raw-transaction client [] outputs})
+    (def funded-raw-tx (hash-get {fund-raw-transaction client raw-tx} "hex"))
+    (def signed-funded-raw-tx (hash-get {sign-raw-transaction-with-wallet client funded-raw-tx} "hex"))
+    {send-raw-transaction client signed-funded-raw-tx})))
+
 (define-entry-point (zero-fee-transaction)
   (help: "Run test scenario for zero fee transaction" getopt: [])
   (run-test (lambda ()
