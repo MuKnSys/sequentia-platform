@@ -27,7 +27,5 @@
     {run-json-rpc self "getfeeexchangerates" []}))
 
 (defmethod {set-fee-exchange-rates SequentiaClient} 
-  (lambda (self rates 
-    expiry-timestamp: (expiry-timestamp #!void) 
-    reference-asset: (reference-asset #!void))
-    {run-json-rpc self "setfeeexchangerates" [rates expiry-timestamp reference-asset]}))
+  (lambda (self rates)
+    {run-json-rpc self "setfeeexchangerates" [rates]}))
