@@ -21,3 +21,13 @@
       verbose: (verbose #!void))
     {run-json-rpc self "sendtoaddress"
       [address amount comment comment-to subtract-fee-from-amount replaceable conf-target estimate-mode avoid-reuse asset-label ignore-blind-fail fee-rate fee-asset-label verbose]}))
+
+(defmethod {get-fee-exchange-rates SequentiaClient} 
+  (lambda (self)
+    {run-json-rpc self "getfeeexchangerates" []}))
+
+(defmethod {set-fee-exchange-rates SequentiaClient} 
+  (lambda (self rates 
+    expiry-timestamp: (expiry-timestamp #!void) 
+    reference-asset: (reference-asset #!void))
+    {run-json-rpc self "setfeeexchangerates" [rates expiry-timestamp reference-asset]}))

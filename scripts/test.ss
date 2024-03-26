@@ -204,6 +204,8 @@
     (def asset-hex (hash-get asset "asset"))
     {rescan-blockchain client}
     {get-balances client}
+    (def new-rates (list->hash-table [(cons asset-hex 1000000000)]))
+    {set-fee-exchange-rates client new-rates}
 
     (displayln "Generate block")
     (def funding-address {get-new-address client address-type: "bech32"})
@@ -229,6 +231,16 @@
     (assert! (= (length rewards) 1))
     (def reward-utxo (car rewards))
     (assert! (equal? (@ reward-utxo asset) asset-hex)))))
+
+(define-entry-point (set-fee-exchange-rates)
+  (help: "Run test scenario for setting fee exchange rates" getopt: [])
+  (run-test (lambda ()
+    (def asset "0000000000000000000000000000000000000000000000000000000000000001")
+    (def rate 2000000000)
+    (def new-rates (list->hash-table [(cons asset rate)]))
+    {set-fee-exchange-rates client new-rates}
+    (def rates (hash-get {get-fee-exchange-rates client} "rates"))
+    (assert! (equal? (hash-get rates asset) rate)))))
 
 (current-program "test")
 (set-default-entry-point! 'no-coin-transaction)
