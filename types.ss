@@ -45,7 +45,7 @@
   (lambda (self)
     (list->hash-table
       [(cons "fee" (@ self amount))
-       (cons "asset" (@ self asset))])))
+       (cons "fee_asset" (@ self asset))])))
 
 ; Utxo
 (defclass (Utxo JSON)
