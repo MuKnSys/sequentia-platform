@@ -133,6 +133,14 @@
       verbose: (verbose #!void))
     {run-json-rpc self "gettransaction" [tx-id include-watch-only verbose]}))
 
+(defmethod {list-transactions BitcoinClient}
+  (lambda (self 
+      label: (label "*")
+      count: (count 10)
+      skip: (skip 0)
+      include-watch-only: (include-watch-only #false))
+    {run-json-rpc self "listtransactions" [label count skip include-watch-only]}))
+
 ; Wallet
 (defmethod {initialize-wallet BitcoinClient}
   (lambda (self
