@@ -3,7 +3,18 @@
   ./elements-client)
 (export #t)
 
-(defclass (SequentiaClient ElementsClient) ())
+(defclass (SequentiaClient ElementsClient) (exchange-rates-json-file))
+
+(defmethod {start-daemon ElementsClient}
+  (lambda (self)
+    (run-process 
+      (append 
+        [{daemon-executable-name self}
+         (string-append "-datadir=" (@ self data-directory))
+         (string-append "-debuglogfile=" (@ self log-file))
+         (string-append "-exchangeratesjsonfile=" (@ self exchange-rates-json-file))]
+         (@ self options)))
+      stdout-redirection: #false))
 
 (defmethod {send-to-address SequentiaClient} 
   (lambda (self address amount 
