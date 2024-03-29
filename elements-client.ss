@@ -65,3 +65,11 @@
 (defmethod {reissue-asset ElementsClient}
   (lambda (self asset amount)
     {run-json-rpc self "reissueasset" [asset amount]}))
+
+(defmethod {blind-raw-transaction ElementsClient}
+  (lambda (self hex
+    ignore-blind-fail: (ignore-blind-fail #!void)
+    asset-commitments: (asset-commitments #!void)
+    blind-issuances: (blind-issuances #!void)
+    total-blinder: (total-blinder #!void))
+    {run-json-rpc self "blindrawtransaction" [hex ignore-blind-fail asset-commitments blind-issuances total-blinder]}))
