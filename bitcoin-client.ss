@@ -23,7 +23,7 @@
 
 ; Bitcoin
 (defclass BitcoinClient 
-  (data-directory options host port username password log-file log-rpc?))
+  (data-directory host port username password log-file log-rpc? daemon-options))
 
 (defmethod {daemon-executable-name BitcoinClient}
   (lambda (self) "bitcoind"))
@@ -48,7 +48,7 @@
         [{daemon-executable-name self}
          (string-append "-datadir=" (@ self data-directory))
          (string-append "-debuglogfile=" (@ self log-file))]
-         (@ self options)))
+         (@ self daemon-options)))
       stdout-redirection: #false))
 
 (defmethod {stop-daemon BitcoinClient}

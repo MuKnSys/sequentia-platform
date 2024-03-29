@@ -1,5 +1,6 @@
 ;;; -*- Gerbil -*-
-(import 
+(import
+  :std/misc/process
   ./elements-client)
 (export #t)
 
@@ -13,7 +14,7 @@
          (string-append "-datadir=" (@ self data-directory))
          (string-append "-debuglogfile=" (@ self log-file))
          (string-append "-exchangeratesjsonfile=" (@ self exchange-rates-json-file))]
-         (@ self options)))
+         (@ self daemon-options)))
       stdout-redirection: #false))
 
 (defmethod {send-to-address SequentiaClient} 
