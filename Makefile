@@ -34,6 +34,4 @@ rebuild-sequentia:
 	cd ./SEQ-Core-Elements; make -j$(shell nproc)
 
 record-demo:
-	asciinema rec demo.cast --command ./scripts/demo.ss
-	agg demo.cast demo.gif
-	rm demo.cast
+	./scripts/debug.ss start; gerbil build; asciinema rec demo.cast --command ./scripts/demo.ss; agg demo.cast demo.gif; rm demo.cast; ./scripts/debug.ss stop

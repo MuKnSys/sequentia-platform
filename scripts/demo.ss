@@ -14,12 +14,10 @@
  
 (def (setup)
   (set! (@ client log-rpc?) #false)
-  {restart-daemon client}
   {initialize-wallet client}
   {rescan-blockchain client})
 
 (def (teardown)
-  {stop-daemon client}
   (def database-path (string-append (@ client data-directory) "/elementsregtest"))
   (when (file-exists? database-path)
     (run-process ["rm" "-rf" database-path])))
@@ -39,27 +37,34 @@
 (def BOLD "\033[1m")
 (def UNDERLINE "\033[4m")
 
-(def (run-cli name arguments)
-    (def datadir-argument (string-append "-datadir=" (@ client data-directory)))
-    (def command ["elements-cli" datadir-argument name arguments ...])
-    (def display-command (map (lambda (command) (if (string? command) command (car command))) command))
-    (displayln "$" BOLD OKCYAN (string-list->string display-command) ENDC ENDC)
-    (def actual-command (map (lambda (command) (if (string? command) command (last command))) command))
-    (def result (run-process actual-command))
-    (displayln result)
-    (thread-sleep! 2)
-    (string-trim-spaces result))
+(def (typeln string)
+  (display (string-append BOLD OKCYAN))
+  (for-each (lambda (c) (display c) (thread-sleep! 0.015)) (string->list string))
+  (displayln ENDC ENDC))
+
+(def (run-cli name arguments json-decoder: (json-decoder (lambda (x) x)))
+  (def datadir-argument (string-append "-datadir=" (@ client data-directory)))
+  (def command ["elements-cli" datadir-argument name arguments ...])
+  (def display-command (map (lambda (command) (if (string? command) command (car command))) command))
+  (typeln (string-list->string display-command))
+  (def actual-command (map (lambda (command) (if (string? command) command (last command))) command))
+  (def result (json-decoder (run-process actual-command)))
+  (unless (string-empty? result) (displayln result))
+  (display "$ ")
+  (thread-sleep! 1)
+  (string-trim-spaces result))
 
 (def (run-export name value)
-    (def command ["set" (string-append name "=" value)]) 
-    (displayln "$" BOLD OKCYAN (string-list->string command) ENDC ENDC)
-    (displayln)
-    (thread-sleep! 2))
+  (def command ["set" (string-append name "=" value)]) 
+  (typeln (string-list->string command))
+  (display "$ ")
+  (thread-sleep! 1))
 
 (define-entry-point (no-coin-transaction)
   (help: "Run test scenario for no coin transaction" getopt: [])
   (run-demo (lambda ()
     ; Generate asset
+    (display "$ ")
     (def asset (run-cli "issueasset" ["100" "0" "false"]))
     (def asset-hex (hash-get (string->json-object asset) 'asset))
     (run-export "CUSTOM_ASSET" asset-hex)
@@ -78,10 +83,17 @@
     (run-cli "rescanblockchain" [])
 
     ; Pay fee with new asset
-    (run-cli "sendtoaddress" [address "1" "null" "null" "null" "null" "null" "unset" "null" custom-asset]))))
+    (def tx (run-cli "sendtoaddress" [address "1" "null" "null" "null" "null" "null" "unset" "null" custom-asset]))
+    (run-cli "gettransaction" [tx] 
+      json-decoder: (lambda (string) 
+        (def json (string->json-object string))
+        (hash-put! json 'hex "...")
+        (pretty-json json)))
+    (thread-sleep! 2)
+    "")))
 
 (def (string-list->string list)
-    (foldl (lambda (current accumulated) (string-append accumulated " " current)) "" list))
+  (string-trim-spaces (foldl (lambda (current accumulated) (string-append accumulated " " current)) "" list)))
 
 (current-program "demo")
 (set-default-entry-point! 'no-coin-transaction)
