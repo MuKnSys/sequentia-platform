@@ -242,6 +242,53 @@
     (def rates (hash-get {get-fee-exchange-rates client} "rates"))
     (assert! (equal? (hash-get rates asset) rate)))))
 
+(define-entry-point (raw-issue-asset)
+  (help: "Run test scenario for raw asset issuance" getopt: [])
+  (run-test (lambda ()
+    (displayln "Fund wallet")
+    (def funding-address {get-new-address client address-type: "bech32"})
+    {generate-to-address client 101 funding-address}
+    
+    (displayln "Create asset")
+    (def asset-address {get-new-address client address-type: "bech32"})
+    (def token-address {get-new-address client address-type: "bech32"})
+    (def raw-issuance-tx {create-raw-transaction client [] [(make-TxDataOutput data: "00")]})
+    (def funded-raw-issuance-tx (hash-get {fund-raw-transaction client raw-issuance-tx} "hex"))
+    (def issuance (make-Issuance
+      asset_amount: 33
+      asset_address: asset-address
+      token_amount: 7
+      token_address: token-address
+      blind: #false))
+    (def asset (car {raw-issue-asset client funded-raw-issuance-tx [issuance]}))
+    (def asset-tx (hash-get asset "hex"))
+    (def signed-asset-tx (hash-get {sign-raw-transaction-with-wallet client asset-tx} "hex"))
+    {send-raw-transaction client signed-asset-tx}
+    (def asset-hex (hash-get asset "asset"))
+
+    (displayln "Generate block")
+    {generate-to-address client 1 funding-address}
+    {rescan-blockchain client}
+
+    (displayln "Pay fee with new asset")
+    (def asset-utxo (find (lambda (utxo) (equal? (@ utxo asset) asset-hex)) {list-unspent client}))
+    (def destination-address {get-new-address client address-type: "bech32"})
+    (def inputs
+      [(make-TxInput txid: (@ asset-utxo txid) vout: (@ asset-utxo vout) sequence: #!void)])
+    (def outputs
+      [(make-TxAddressOutput address: destination-address amount: (- (@ asset-utxo amount) 0.01) asset: asset-hex)
+       (make-TxAnyFeeOutput amount: 0.01 asset: asset-hex)])
+    (def raw-tx {create-raw-transaction client inputs outputs})
+    (def signed-raw-tx (hash-get {sign-raw-transaction-with-wallet client raw-tx} "hex"))
+    {send-raw-transaction client signed-raw-tx}
+      
+    (displayln "Pay out rewards")
+    (def rewards-address {get-new-address client address-type: "bech32"})
+    {generate-to-address client 1 rewards-address}
+    {rescan-blockchain client}
+    (def rewards {list-unspent client addresses: [rewards-address]})
+    (assert! (= (length rewards) 1)))))
+
 (current-program "test")
 (set-default-entry-point! 'no-coin-transaction)
 (define-multicall-main)
