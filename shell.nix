@@ -14,6 +14,7 @@ in pkgs.mkShell {
         pkgs.gerbil-unstable
         pkgs.asciinema
         pkgs.asciinema-agg
+        pkgs.jq
     ] ++ pkgs.lib.optionals (!withLocalSequentia) [sequentia];
 
     shellHook = ''
