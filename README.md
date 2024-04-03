@@ -4,7 +4,7 @@ Test scripts and development tools for [SEQ-Core-Elements](https://github.com/Se
 
 ## Building
 
-Enter nix shell, which will provide all the build tools and dependencies for both `SEQ-Core-Elements` and `gerbil-sequentia`:
+Enter nix shell, which will provide all the build tools and dependencies for both `SEQ-Core-Elements` and the test scripts, written in [Gerbil Scheme](https://gerbil.scheme.org/):
 ```shell
 nix-shell
 ```
@@ -16,7 +16,7 @@ Then run:
 ```shell
 make build-sequentia
 ```
-To build `gerbil-sequentia`, run:
+To build the Gerbil modules required for testing, run:
 ```shell
 gerbil build
 ```
@@ -26,7 +26,7 @@ When making changes to `SEQ-Core-Elements` source, use `make rebuild-sequentia` 
 
 All test scenarios will spin up a new node, then destroy it immediately after if the test passes successfully. If the test fails, the node will continue running so that its state is still available for debugging purposes.
 
-The scenarios are defined in `./scripts/test.ss`, and list of all the currently dtests can be viewed by running `./scripts/test.ss help`. To run a specific test, add an argument with the name of the test.
+The scenarios are defined in `./scripts/test.ss`, and list of all the currently available tests can be viewed by running `./scripts/test.ss help`. To run a specific test, add an argument with the name of the test.
 
 For example, to run the test scenario for the No Coin feature:
 ```shell
