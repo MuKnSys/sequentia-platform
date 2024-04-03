@@ -1,4 +1,4 @@
-# gerbil-sequentia
+# sequentia-platform
 
 Test scripts and development tools for [SEQ-Core-Elements](https://github.com/SequentiaSEQ/SEQ-Core-Elements).
 
