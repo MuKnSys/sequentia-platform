@@ -95,6 +95,32 @@
       verbosity: (verbosity 1))
     {run-json-rpc self "getblock" [block-hash verbosity]}))
 
+(defmethod {get-mempool-ancestors BitcoinClient}
+  (lambda (self tx-id
+      verbosity: (verbosity #false))
+    {run-json-rpc self "getmempoolancestors" [tx-id verbosity]}))
+
+(defmethod {get-mempool-descendants BitcoinClient}
+  (lambda (self tx-id
+      verbosity: (verbosity #false))
+    {run-json-rpc self "getmempooldescendants" [tx-id verbosity]}))
+
+(defmethod {get-mempool-entry BitcoinClient}
+  (lambda (self tx-id)
+    {run-json-rpc self "getmempoolentry" [tx-id]}))
+
+(defmethod {get-mempool-info BitcoinClient}
+  (lambda (self)
+    {run-json-rpc self "getmempoolinfo" []}))
+
+(defmethod {get-raw-mempool BitcoinClient}
+  (lambda (self)
+    {run-json-rpc self "getrawmempool" []}))
+
+(defmethod {save-mempool BitcoinClient}
+  (lambda (self)
+    {run-json-rpc self "savemempool" []}))
+
 ; Transactions
 (defmethod {create-raw-transaction BitcoinClient}
   (lambda (self inputs outputs 
