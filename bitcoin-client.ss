@@ -85,7 +85,7 @@
       arguments ...]
       stdout-redirection: #f)))
 
-; Blockchain state
+; Blockchain
 (defmethod {get-block-count BitcoinClient}
   (lambda (self)
     {run-json-rpc self "getblockcount" []}))
