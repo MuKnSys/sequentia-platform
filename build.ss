@@ -11,6 +11,6 @@
    "scripts/demo"])
 
 (init-build-environment!
-  name: "Gerbil-sequentia"
+  name: "sequentia-platform"
   deps: '("clan" "clan/crypto")
   spec: files)
