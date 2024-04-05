@@ -1,10 +1,10 @@
 let
   systemPkgs = import <nixpkgs> {};
   nixpkgs-source = systemPkgs.fetchFromGitHub {
-    owner = "NixOS";
+    owner = "MuKnIO";
     repo = "nixpkgs";
-    rev = "0deaf4d5d224fac3cb2ae9c92a4e349c277be982";
-    sha256 = "sha256-uERpVxRrCUB7ySkGb3NtDmzEkPDn23VfkCtT2hJZty8=";
+    rev = "ed2c5605b165c6d88eab33fc2988bd6583fedca4";
+    sha256 = "sha256-NalftrdrbXNDmnBgJZd4Tnd73LuqfAyrZb22bTkfoEM=";
   };
   sequentia-source = systemPkgs.fetchFromGitHub {
     owner = "MuKnIO";
