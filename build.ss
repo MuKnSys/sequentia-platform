@@ -12,5 +12,5 @@
 
 (init-build-environment!
   name: "sequentia-platform"
-  deps: '("clan" "clan/crypto")
+  deps: '("clan")
   spec: files)
