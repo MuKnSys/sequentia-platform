@@ -4,14 +4,16 @@
   :std/assert
   :std/cli/getopt
   :std/cli/multicall
+  :std/misc/ports
   :std/misc/process
+  :std/misc/walist
   :std/sugar
   :std/text/json
   :clan/string
   :mukn/sequentia/sequentia-client
   :mukn/sequentia/test-client
   :mukn/sequentia/types)
- 
+
 (def (setup)
   (set! (@ client log-rpc?) #false)
   {initialize-wallet client}
@@ -38,6 +40,8 @@
 (def UNDERLINE "\033[4m")
 
 (def (typeln string)
+  (display "$ ")
+  (thread-sleep! 2)
   (display (string-append BOLD OKCYAN))
   (for-each (lambda (c) (display c) (thread-sleep! 0.015)) (string->list string))
   (displayln ENDC ENDC))
@@ -45,26 +49,21 @@
 (def (run-cli name arguments json-decoder: (json-decoder (lambda (x) x)))
   (def datadir-argument (string-append "-datadir=" (@ client data-directory)))
   (def command ["elements-cli" datadir-argument name arguments ...])
-  (def display-command (map (lambda (command) (if (string? command) command (car command))) command))
+  (def display-command ["sequentia-cli" name (map (lambda (argument) (if (string? argument) argument (first argument))) arguments) ...])
   (typeln (string-list->string display-command))
-  (def actual-command (map (lambda (command) (if (string? command) command (last command))) command))
+  (def actual-command (map (lambda (argument) (if (string? argument) argument (last argument))) command))
   (def result (json-decoder (run-process actual-command)))
   (unless (string-empty? result) (displayln result))
-  (display "$ ")
-  (thread-sleep! 1)
   (string-trim-spaces result))
 
 (def (run-export name value)
   (def command ["set" (string-append name "=" value)]) 
-  (typeln (string-list->string command))
-  (display "$ ")
-  (thread-sleep! 1))
+  (typeln (string-list->string command)))
 
 (define-entry-point (no-coin-transaction)
   (help: "Run test scenario for no coin transaction" getopt: [])
   (run-demo (lambda ()
     ; Generate asset
-    (display "$ ")
     (def asset (run-cli "issueasset" ["100" "0" "false"]))
     (def asset-hex (hash-get (string->json-object asset) 'asset))
     (run-export "CUSTOM_ASSET" asset-hex)
@@ -85,12 +84,14 @@
     ; Pay fee with new asset
     (def tx (run-cli "sendtoaddress" [address "1" "null" "null" "null" "null" "null" "unset" "null" custom-asset]))
     (run-cli "gettransaction" [tx] 
-      json-decoder: (lambda (string) 
-        (def json (string->json-object string))
-        (hash-put! json 'hex "...")
-        (pretty-json json)))
-    (thread-sleep! 2)
-    "")))
+      json-decoder: (lambda (string)
+        (parameterize ((json-object-walist? #t) (json-sort-keys #f))
+          (def walist-json (string->json-object string))
+          (def alist-json (walist->alist walist-json))
+          (def walistq-json (walistq! alist-json))
+          (walistq!-put! walistq-json 'hex "...")
+          (with-output (o #f) (pretty-json walistq-json o)))))
+    (thread-sleep! 8))))
 
 (def (string-list->string list)
   (string-trim-spaces (foldl (lambda (current accumulated) (string-append accumulated " " current)) "" list)))
