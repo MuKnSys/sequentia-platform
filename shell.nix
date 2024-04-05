@@ -3,9 +3,7 @@
 let pkgs = import ./pkgs.nix;
     sequentia = if withLocalSequentia then (import ./SEQ-Core-Elements/pkgs.nix).sequentia else pkgs.sequentia;
     gerbilPackages = [ 
-        pkgs.gerbilPackages-unstable.gerbil-crypto
         pkgs.gerbilPackages-unstable.gerbil-utils
-        pkgs.gerbilPackages-unstable.gerbil-poo
     ]; 
 in pkgs.mkShell {
     inputsFrom = pkgs.lib.optionals withLocalSequentia [sequentia];
