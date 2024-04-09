@@ -10,4 +10,4 @@
     data-directory: "./data"
     log-file: "../debug.log"
     exchange-rates-json-file: "../exchangerates.json"
-    daemon-options: ["-logsourcelocations" "-con_any_asset_fees=true"]))
+    daemon-options: ["-logsourcelocations" "-con_any_asset_fees=1"]))
