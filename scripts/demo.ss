@@ -77,7 +77,7 @@
     (run-cli "rescanblockchain" [])
 
     ; Send asset to new address
-    (run-cli "sendtoaddress" [address "1" "null" "null" "null" "null" "null" "unset" "null" custom-asset "null" "null" "\"bitcoin\""])
+    (run-cli "sendtoaddress" [address "1" "null" "null" "null" "null" "null" "unset" "null" custom-asset "null" "null" "\"genesis\""])
     (run-cli "generatetoaddress" ["1" address])
     (run-cli "rescanblockchain" [])
 

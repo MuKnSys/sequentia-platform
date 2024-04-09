@@ -204,8 +204,6 @@
     (def asset-hex (hash-get asset "asset"))
     {rescan-blockchain client}
     {get-balances client}
-    (def new-rates (list->hash-table [(cons asset-hex 1000000000)]))
-    {set-fee-exchange-rates client new-rates}
 
     (displayln "Generate block")
     (def funding-address {get-new-address client address-type: "bech32"})
@@ -214,7 +212,7 @@
     {get-balances client}
 
     (displayln "Send asset to new address")
-    {send-to-address client funding-address 1 asset-label: asset-hex fee-asset-label: "bitcoin"}
+    {send-to-address client funding-address 1 asset-label: asset-hex fee-asset-label: "genesis"}
     {generate-to-address client 1 funding-address}
     {rescan-blockchain client}
     {get-balances client}
