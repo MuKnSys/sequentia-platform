@@ -169,31 +169,32 @@
     (def asset-hex (hash-get asset "asset"))
 
     (displayln "Generate block")
-    (def funding-address {get-new-address client address-type: "bech32"})
-    {generate-to-address client 1 funding-address}
-    {send-to-address client funding-address 10 asset-label: asset-hex}
+    (def funding-address {get-new-address client address-type: "blech32"})
     {generate-to-address client 1 funding-address}
     {rescan-blockchain client}
 
     (displayln "Pay fee with new asset")
-    (def utxos {list-unspent client addresses: [funding-address]})
+    (def utxos {list-unspent client})
     (def utxo (find (lambda (utxo) (equal? (@ utxo asset) asset-hex)) utxos))
-    (def destination-address {get-new-address client address-type: "bech32"})
+    (def destination-address {get-new-address client address-type: "blech32"})
     (def inputs
       [(make-TxInput txid: (@ utxo txid) vout: (@ utxo vout) sequence: #!void)])
     (def outputs
       [(make-TxAddressOutput address: destination-address amount: (- (@ utxo amount) 0.01) asset: asset-hex)
       (make-TxAnyFeeOutput amount: 0.01 asset: asset-hex)])
     (def raw-tx {create-raw-transaction client inputs outputs})
-    (def signed-raw-tx (hash-get {sign-raw-transaction-with-wallet client raw-tx} "hex"))
+    (def blinded-raw-tx {blind-raw-transaction client raw-tx})
+    (def signed-raw-tx (hash-get {sign-raw-transaction-with-wallet client blinded-raw-tx} "hex"))
     {send-raw-transaction client signed-raw-tx}
       
     (displayln "Pay out rewards")
-    (def rewards-address {get-new-address client address-type: "bech32"})
-    {generate-to-address client 1 rewards-address}
+    (def rewards-address {get-new-address client address-type: "blech32"})
+    {generate-to-address client 101 rewards-address}
     {rescan-blockchain client}
     (def rewards {list-unspent client addresses: [rewards-address]})
-    (assert! (= (length rewards) 1)))))
+    (assert! (= (length rewards) 1))
+    (def reward-utxo (car rewards))
+    (assert! (equal? (@ reward-utxo asset) asset-hex)))))
 
 (define-entry-point (no-coin-transaction)
   (help: "Run test scenario for no coin transaction" getopt: [])
@@ -207,12 +208,6 @@
 
     (displayln "Generate block")
     (def funding-address {get-new-address client address-type: "bech32"})
-    {generate-to-address client 1 funding-address}
-    {rescan-blockchain client}
-    {get-balances client}
-
-    (displayln "Send asset to new address")
-    {send-to-address client funding-address 1 asset-label: asset-hex fee-asset-label: "genesis"}
     {generate-to-address client 1 funding-address}
     {rescan-blockchain client}
     {get-balances client}
