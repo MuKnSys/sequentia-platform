@@ -159,6 +159,11 @@
       verbose: (verbose #!void))
     {run-json-rpc self "gettransaction" [tx-id include-watch-only verbose]}))
 
+(defmethod {get-raw-transaction BitcoinClient}
+  (lambda (self tx-id
+      verbose: (verbose #!void))
+    {run-json-rpc self "getrawtransaction" [tx-id verbose]}))
+
 (defmethod {list-transactions BitcoinClient}
   (lambda (self 
       label: (label "*")
@@ -201,10 +206,7 @@
 
 (defmethod {create-wallet BitcoinClient}
   (lambda (self name)
-    ; See https://github.com/ElementsProject/elements/issues/1106 for why extra parameters are necessary
-    (def result {run-json-rpc self "createwallet" [name #false #false "" #false #false]})
-    (def warning (hash-get result "warning"))
-    (when warning (displayln (string-append "WARNING: " warning)))))
+    {run-json-rpc self "createwallet" [name #false #false "" #false #false]}))
 
 (defmethod {load-wallet BitcoinClient}
   (lambda (self filename
