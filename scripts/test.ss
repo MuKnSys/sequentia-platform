@@ -232,7 +232,7 @@
     (def rate 2000000000)
     (def new-rates (list->hash-table [(cons asset rate)]))
     {set-fee-exchange-rates client new-rates}
-    (def rates (hash-get {get-fee-exchange-rates client} "rates"))
+    (def rates {get-fee-exchange-rates client})
     (assert! (equal? (hash-get rates asset) rate)))))
 
 (define-entry-point (raw-issue-asset)
