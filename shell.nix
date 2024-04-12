@@ -13,6 +13,7 @@ in pkgs.mkShell {
         pkgs.asciinema
         pkgs.asciinema-agg
         pkgs.jq
+        pkgs.clang-tools
     ] ++ pkgs.lib.optionals (!withLocalSequentia) [sequentia];
 
     shellHook = ''
