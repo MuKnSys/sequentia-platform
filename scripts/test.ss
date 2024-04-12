@@ -215,13 +215,14 @@
     (displayln "Pay fee with new asset")
     (def destination-address {get-new-address client address-type: "bech32"})
     {send-to-address client destination-address 1 asset-label: asset-hex}
+    {send-to-address client destination-address 1 asset-label: "genesis"}
 
     (displayln "Pay out rewards")
     (def rewards-address {get-new-address client address-type: "bech32"})
     {generate-to-address client 101 rewards-address}
     {rescan-blockchain client}
     (def rewards {list-unspent client addresses: [rewards-address]})
-    (assert! (= (length rewards) 1))
+    (assert! (= (length rewards) 2))
     (def reward-utxo (car rewards))
     (assert! (equal? (@ reward-utxo asset) asset-hex)))))
 
