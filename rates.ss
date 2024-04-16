@@ -6,6 +6,7 @@
 ;; as gotten from:
 ;; https://coinlayer.com/product (choose the free plan, still need a credit card)
 ;; https://coinmarketcap.com/api/pricing/ (choose the free plan)
+;; https://site.financialmodelingprep.com/developer/docs/pricing (choose the basic plan)
 
 
 ;;; Imports
@@ -136,19 +137,17 @@
     (def previous (hash-get oracle-prices oracle))
     (match previous
       ([attempt-tai data-tai quote-data]
-       (when (< (current-tai-timestamp)
-                (+ attempt-tai (* refractory-period one-second)))
+       (when (and attempt-tai
+                  (< (current-tai-timestamp)
+                     (+ attempt-tai (* refractory-period one-second))))
          (return previous))
        (try
         (refresh)
         (catch (_) (return [(current-tai-timestamp) data-tai quote-data]))))
-      (#f
+      (_
        (try
         (refresh)
-        (catch (_)
-          (let ((stamp (current-tai-timestamp)))
-            (return [stamp stamp #f]))))))))
-
+        (catch (_) (return [#f #f #f])))))))
 
 (def (get-rate/oracle-path
       oracle path
@@ -192,6 +191,13 @@
       (def (get-rate quote-json path) body2 ...)
       (register-price-oracle (as-string 'name) get-quote get-rate))))
 
+;; Access a quote of given symbol from a list
+(def (symbol-select data selector)
+  (cond
+   ((string? selector) (find (lambda (x) (equal? (hash-ref x "symbol") selector)) data))
+   ((fixnum? selector) (list-ref data selector))
+   (else (error "bad selector" selector))))
+
 ;; TODO:
 ;; https://www.blockchain.com/explorer/api/exchange_rates_api
 ;; https://blockchain.info/ticker
@@ -201,6 +207,7 @@
 ;; https://coinlayer.com/documentation
 ;; Free API key has only 100 queries per month, so set refractory period to 28800 (8 hours)
 ;; Also, free API can only use http, not https. There is no test server.
+;; See how many queries you have left at: https://coinlayer.com/dashboard
 (defprice-oracle coinlayer
   ((config)
    (let ((url (hash-ref config "url"))
@@ -217,11 +224,6 @@
 ;; or once a minute for about 2h45. https://pro.coinmarketcap.com/api/pricing
 ;; The $30/mo plan has 110K calls per month, enough for twice a minute
 ;; Test server serves garbage, albeit in the right format.
-(def (coinmarketcap-select data selector)
-  (cond
-   ((string? selector) (find (lambda (x) (equal? (hash-ref x "symbol") selector)) data))
-   ((fixnum? selector) (list-ref data selector))
-   (else (error "bad selector" selector))))
 (defprice-oracle coinmarketcap
   ((config)
    (let ((host (hash-ref config "host"))
@@ -234,8 +236,22 @@
                            ["Accept" . "application/json"]])))))
   ((quote-json selector)
    (let* ((data (hash-ref quote-json "data"))
-          (entry (coinmarketcap-select data selector)))
+          (entry (symbol-select data selector)))
      (hash-ref (hash-ref (hash-ref entry "quote") "USD") "price"))))
+
+;; financialmodelingprep.com
+;; free is 250 calls/day, with 2 things, every 6 minutes
+(defprice-oracle financialmodelingprep
+  ((config)
+   (let* ((key (hash-ref config "key"))
+          (assets '("BTC" "ETH"))
+          (pairs (string-join (map (cut string-append <> "USD") assets) ","))
+          (url (format "https://financialmodelingprep.com/api/v3/quote/~a" pairs)))
+     (bytes->json-object
+      (request-content
+       (http-get (query-string url apikey: key))))))
+  ((quote-json selector)
+   (hash-ref (symbol-select quote-json selector) "price")))
 
 ;; Polygon.io
 ;; https://polygon.io/docs/stocks/get_v2_last_nbbo__stocksticker
@@ -250,18 +266,19 @@
              (cons ticker
                    (bytes->json-object
                     (request-content
-                     (http-get (query-string (format "https://~a/v2/last/trade/~a"
-                                                     host ticker)
-                                             apiKey: key))))))
+                     (http-get (query-string
+                                (format "https://~a/v2/last/trade/~a" host ticker)
+                                apiKey: key))))))
            tickers))))
   ((quote-json selector)
    (let* ((results (hash-ref (hash-ref quote-json selector) "results"))
-          (P (hash-ref result "P"))
-          (p (hash-ref result "p")))
+          (P (hash-ref results "P"))
+          (p (hash-ref results "p")))
      (* .5 (+ P p)))))
 
 
 ;;; Testing the above, for now, until we have a complete thing
+#||#
 
 (def (pj x) (pretty-json x #t)) ;; lisp-style?: #t))
 (json-symbolic-keys #f) ;; (read-json-key-as-symbol? #f)
@@ -270,26 +287,30 @@
 (use-prod-rates-config)
 (load-oracle-prices-cache)
 
+;; (writeln (sort (hash-keys price-oracles) string<?))
+
 ;;(apropos "coinlayer")
 ;;(trace! get-rates get-rate/oracle-path get-oracle-data get-coinmarketcap-quote get-coinmarketcap-rate)
 ;;(pj (get-coinlayer-quote))
 ;;(pj (get-oracle-data "coinlayer"))
+;;(pj (get-financialmodelingprep-quote))
+;;(pj (get-oracle-data "financialmodelingprep"))
 ;;(pj oracle-prices)
 ;;(pj (*rates-services-config*))
 ;;(pj (*rates-assets-config*))
-(def q (get-coinmarketcap-quote))
+
+;;(def q (get-coinmarketcap-quote))
 ;;(pj q)
-(writeln (map (cut hash-ref <> "symbol") (hash-ref q "data"))) ;; changes every time
-(writeln (length (hash-ref q "data"))) ;; changes every time
+;;(writeln (map (cut hash-ref <> "symbol") (hash-ref q "data")))
+;;(writeln (length (hash-ref q "data")))
 
-(def q2 (get-coinlayer-quote))
+;;(def q2 (get-coinlayer-quote))
 ;;(pj q2)
-(writeln (sort (hash-keys (hash-ref q2 "rates")) string<?)) ;; changes every time
-(writeln (hash-length (hash-ref q2 "rates"))) ;; changes every time
+;;(writeln (sort (hash-keys (hash-ref q2 "rates")) string<?))
+;;(writeln (hash-length (hash-ref q2 "rates"))
 
-;;(pj (get-rates))
+(pj (get-rates))
 ;;(pj (get-median-rates))
 
 (save-oracle-prices-cache)
 (displayln "See price cache at: " (oracle-prices-cache-path))
-#||#

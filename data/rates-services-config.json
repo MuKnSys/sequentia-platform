@@ -15,8 +15,15 @@
   "host": "pro-api.coinmarketcap.com",
   "key": "1234abcd-56ef-7890-f00d-1deadbeef666",
   "refractory_period": 7200},
+
  "coinlayer":
  {"comment": "Free API key has only 100 calls/month, no https, wait 8h between queries",
   "url": "http://api.coinlayer.com",
   "key": "1234567890abcdef1234567890abcdef",
-  "refractory_period": 28800}}
+  "refractory_period": 28800},
+
+ "financialmodelingprep":
+ {"comment_0": "Free API key has only 250 calls/day",
+  "comment_1": "So we will call once per 10 minutes",
+  "key": "abcdefghijklmNOPQRSTUVWXYZ012345",
+  "refractory_period": 600}}

@@ -13,7 +13,8 @@
   "on_chain_scale": 100000000,
   "oracles":
   {"coinlayer": "BTC",
-   "coinmarketcap": "BTC"}},
+   "coinmarketcap": "BTC",
+   "financialmodelingprep": "BTCUSD"}},
 
  "ETH":
  {"nAsset": "0000000000000000000000000000000000000000000000000000000000000002",
@@ -21,4 +22,5 @@
   "on_chain_scale": 100000000,
   "oracles":
   {"coinlayer": "ETH",
-   "coinmarketcap": "ETH"}}}
+   "coinmarketcap": "ETH",
+   "financialmodelingprep": "ETHUSD"}}}
