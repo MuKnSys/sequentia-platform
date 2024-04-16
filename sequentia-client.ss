@@ -4,7 +4,7 @@
   ./elements-client)
 (export #t)
 
-(defclass (SequentiaClient ElementsClient) (exchange-rates-json-file))
+(defclass (SequentiaClient ElementsClient) ())
 
 (defmethod {start-daemon ElementsClient}
   (lambda (self)
@@ -12,8 +12,7 @@
       (append 
         [{daemon-executable-name self}
          (string-append "-datadir=" (@ self data-directory))
-         (string-append "-debuglogfile=" (@ self log-file))
-         (string-append "-exchangeratesjsonfile=" (@ self exchange-rates-json-file))]
+         (string-append "-debuglogfile=" (@ self log-file))]
          (@ self daemon-options)))
       stdout-redirection: #false))
 

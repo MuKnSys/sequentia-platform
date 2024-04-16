@@ -9,5 +9,4 @@
     password: "password1"
     data-directory: "./data"
     log-file: "../debug.log"
-    exchange-rates-json-file: "../exchangerates.json"
-    daemon-options: ["-logsourcelocations" "-con_any_asset_fees=1"]))
+    daemon-options: ["-logsourcelocations" "-con_any_asset_fees=1" "-exchangeratesjsonfile=../exchangerates.json"]))
