@@ -4,6 +4,7 @@
 ;; copy the sample rates-assets-config.json and rates-services-config.json
 ;; from data/ to ~/.config/sequentia/ and edit rates-services-config.json to use your keys,
 ;; as gotten from:
+;; https://www.coinapi.io/get-free-api-key?email=xxx
 ;; https://coinlayer.com/product (choose the free plan, still need a credit card)
 ;; https://coinmarketcap.com/api/pricing/ (choose the free plan)
 ;; https://site.financialmodelingprep.com/developer/docs/pricing (choose the basic plan)
@@ -214,9 +215,7 @@
       (def (get-rate quote-json path) body2 ...)
       (register-price-oracle (as-string 'name) get-quote get-rate))))
 
-;; TODO:
-
-;; Only for Bitcoin:
+;; Blockchain.info (for Bitcoin price only)
 ;; https://www.blockchain.com/explorer/api/exchange_rates_api
 ;; https://blockchain.info/ticker
 (defprice-oracle blockchain.info
@@ -238,6 +237,18 @@
      (http-get "https://cex.io/api/tickers/USD"))))
   ((quote-json selector)
    (hash-ref (symbol-select (hash-ref quote-json "data") selector "pair") "last")))
+
+;; Coinapi.io
+;; https://docs.coinapi.io/
+(defprice-oracle coinapi.io
+  ((config)
+   (let ((key (hash-ref config "key")))
+     (bytes->json-object
+      (request-content
+       (http-get "https://rest.coinapi.io/v1/exchangerate/USD?invert=true"
+                 headers: [["X-CoinAPI-Key" . key]])))))
+  ((quote-json selector)
+   (hash-ref (symbol-select (hash-ref quote-json "rates") selector "asset_id_quote") "rate")))
 
 
 ;; Coinlayer.com
@@ -314,6 +325,9 @@
      (* .5 (+ P p)))))
 
 
+;;; TODO: Connecting to a sequentia node
+
+
 ;;; Testing the above, for now, until we have a complete thing
 #||#
 
@@ -347,6 +361,9 @@
 ;;(pj q2)
 ;;(writeln (sort (hash-keys (hash-ref q2 "rates")) string<?))
 ;;(writeln (hash-length (hash-ref q2 "rates"))
+
+;;(pj (get-coinapi.io-quote))
+;;(writeln (length (hash-ref (get-coinapi.io-quote) "rates"))) ; => 4999
 
 (pj (get-rates))
 ;;(pj (get-median-rates))
