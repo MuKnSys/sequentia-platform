@@ -1,0 +1,17 @@
+{"coinmarketcap":
+ {"WARNING_0": ">>>> KEEP YOUR API KEYS SECRET. <<<<",
+  "WARNING_1": ">>>> DO NOT PUBLISH YOUR rates-services-config.json FILE ANYWHERE <<<<",
+  "WARNING_2": ">>>> NOR SHARE IT WITH ANYONE BUT CO-ADMINISTRATORS OF YOUR SERVER! <<<<",
+  "WARNING_4": "",
+  "comment_0": "This file is a template for a services configuration file for the rates server.",
+  "comment_1": "Put it in ~/.config/sequentia/rates-services-config.json",
+  "comment_2": "or ${XDG_CONFIG_HOME}/sequentia/rates-services-config.json",
+  "comment_3": "And don't forget to replace the API keys by yours, etc.",
+  "comment_4": "Leave the refractory_period at 7200 (7200 seconds = 2h) for a free API key",
+  "comment_5": "Make it 30 (30 seconds, half a minute) for a $40/mo key",
+  "comment_6": "",
+  "comment_7": "You should remove the warnings and comments while you're at it.",
+  "comment_8": "",
+  "host": "pro-api.coinmarketcap.com",
+  "key": "1234abcd-56ef-7890-f00d-1deadbeef666",
+  "refractory_period": 7200}}

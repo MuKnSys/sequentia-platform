@@ -1,10 +1,12 @@
-{ withLocalSequentia ? true 
+{ withLocalSequentia ? true
 }:
 let pkgs = import ./pkgs.nix;
-    sequentia = if withLocalSequentia then (import ./SEQ-Core-Elements/pkgs.nix).sequentia else pkgs.sequentia;
-    gerbilPackages = [ 
+    sequentia = if withLocalSequentia then import ../SEQ-Core-Elements/default.nix else pkgs.sequentia;
+    gerbilPackages = [
+        pkgs.gerbilPackages-unstable.gerbil-crypto
         pkgs.gerbilPackages-unstable.gerbil-utils
-    ]; 
+        pkgs.gerbilPackages-unstable.gerbil-poo
+    ];
 in pkgs.mkShell {
     inputsFrom = pkgs.lib.optionals withLocalSequentia [sequentia];
 
@@ -20,6 +22,8 @@ in pkgs.mkShell {
         export GERBIL_LOADPATH=${pkgs.gerbil-support.gerbilLoadPath (["$out"] ++ gerbilPackages)}
         export GERBIL_PATH=$PWD/.build
         export GERBIL_BUILD_CORES=$NIX_BUILD_CORES
-        ${if withLocalSequentia then "PATH=./SEQ-Core-Elements/src:$PATH" else ""}
+        ${if withLocalSequentia then
+           let sce = ../SEQ-Core-Elements/src ; in
+           "PATH=${sce}:$PATH" else ""}
     '';
-} 
+}

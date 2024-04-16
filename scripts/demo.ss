@@ -83,11 +83,12 @@
 
     ; Pay fee with new asset
     (def tx (run-cli "sendtoaddress" [address "1" "null" "null" "null" "null" "null" "unset" "null" custom-asset]))
-    (run-cli "gettransaction" [tx] 
+    (run-cli "gettransaction" [tx]
       json-decoder: (lambda (string)
-        (parameterize ((json-object-walist? #t) (json-sort-keys #f))
+        (parameterize (#;(read-json-object-as-walist? #t) #;(write-json-sort-keys? #f)
+                       (json-sort-keys #f))
           (def walist-json (string->json-object string))
-          (def alist-json (walist->alist walist-json))
+          (def alist-json (#;walist->alist hash->list walist-json))
           (def walistq-json (walistq! alist-json))
           (walistq!-put! walistq-json 'hex "...")
           (with-output (o #f) (pretty-json walistq-json o)))))
