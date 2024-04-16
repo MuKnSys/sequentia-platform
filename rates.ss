@@ -58,6 +58,11 @@
    ((fixnum? selector) (list-ref data selector))
    (else (error "bad selector" selector))))
 
+;; JSON <- String
+(def (read-json-config file)
+   (try (read-file-json file)
+        (catch (_) (error "Failed to read JSON config file" file))))
+
 
 ;;; The registered price oracles access methods
 
@@ -67,12 +72,6 @@
 ;; <- String Function Function
 (def (register-price-oracle name get-quote get-rate)
   (hash-put! price-oracles name [get-quote get-rate]))
-
-;; (Table HashTable <- String)
-(def test-rates-services-config
-  (hash ("coinmarketcap" (hash ("host" "sandbox-api.coinmarketcap.com")
-                               ("key" "b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c")
-                               ("refractory_period" 30)))))
 
 ;;; Configuration
 
@@ -84,33 +83,12 @@
 (def *rates-assets-config*
   (make-parameter (hash)))
 
-;; (Table HashTable <- String)
-(def test-rates-assets-config
-  (hash ("BTC" (hash ("nAsset" "0000000000000000000000000000000000000000000000000000000000000001")
-                     ("usual_decimals" 8)
-                     ("on_chain_scale" 1e8)
-                     ("oracles" (hash ("coinmarketcap" 2))))) ;; in test, symbol changes every time
-        ("ETH" (hash ("nAsset" "0000000000000000000000000000000000000000000000000000000000000002")
-                     ("usual_decimals" 18)
-                     ("on_chain_scale" 1e8)
-                     ("oracles" (hash ("coinmarketcap" 4)))))))
-
 ;; <-
-(def (use-test-rates-config)
-  (*rates-services-config* test-rates-services-config)
-  (*rates-assets-config* test-rates-assets-config))
-
-;; JSON <- String
-(def (read-config file)
-   (try (read-file-json file)
-        (catch (_) (error "Failed to read JSON config file" file))))
-
-;; <-
-(def (use-prod-rates-config)
+(def (read-rates-config)
   (*rates-services-config*
-   (read-config (xdg-config-home "sequentia/rates-services-config.json")))
+   (read-json-config (xdg-config-home "sequentia/rates-services-config.json")))
   (*rates-assets-config*
-   (read-config (xdg-config-home "sequentia/rates-assets-config.json"))))
+   (read-json-config (xdg-config-home "sequentia/rates-assets-config.json"))))
 
 
 ;;; Cached prices from oracles
@@ -334,8 +312,7 @@
 (def (pj x) (pretty-json x #t)) ;; lisp-style?: #t))
 (json-symbolic-keys #f) ;; (read-json-key-as-symbol? #f)
 (json-sort-keys #t) ;; (write-json-sort-keys? #t)
-;;(use-test-rates-config)
-(use-prod-rates-config)
+(read-rates-config)
 (load-oracle-prices-cache)
 
 ;; (writeln (sort (hash-keys price-oracles) string<?))
