@@ -1,5 +1,13 @@
 ;;;;; Rates server
 
+;; BEWARE: >>>> CONFIGURATION <<<<
+;; copy the sample rates-assets-config.json and rates-services-config.json
+;; from data/ to ~/.config/sequentia/ and edit rates-services-config.json to use your keys,
+;; as gotten from:
+;; https://coinlayer.com/product (choose the free plan, still need a credit card)
+;; https://coinmarketcap.com/api/pricing/ (choose the free plan)
+
+
 ;;; Imports
 
 (import
