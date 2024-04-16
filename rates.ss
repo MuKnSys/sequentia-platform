@@ -170,14 +170,16 @@
         (cons oracle (get-rate/oracle-path oracle path services-config: services-config)))
       (hash-ref asset "oracles")))))
 
+(def (median<-rates rates)
+  (median (filter identity (hash-values rates)) #f))
+
 (def (get-median-rates
       assets-config: (assets-config (*rates-assets-config*))
       services-config: (services-config (*rates-services-config*)))
   (hash-value-map
    (get-rates assets-config: assets-config
               services-config: services-config)
-   (lambda (rates)
-     (median (filter identity (hash-values rates))))))
+   median<-rates))
 
 
 ;;; The access methods
@@ -205,8 +207,7 @@
          (key (hash-ref config "key")))
      (bytes->json-object
       (request-content
-       (http-get (query-string (format "~a/live" url)
-                               access_key: key))))))
+       (http-get (query-string (format "~a/live" url) access_key: key))))))
   ((quote-json selector)
    (hash-ref (hash-ref quote-json "rates") selector)))
 
@@ -263,8 +264,8 @@
 ;;; Testing the above, for now, until we have a complete thing
 
 (def (pj x) (pretty-json x #t)) ;; lisp-style?: #t))
-(json-symbolic-keys #f)
-(json-sort-keys #t)
+(json-symbolic-keys #f) ;; (read-json-key-as-symbol? #f)
+(json-sort-keys #t) ;; (write-json-sort-keys? #t)
 ;;(use-test-rates-config)
 (use-prod-rates-config)
 (load-oracle-prices-cache)
@@ -276,11 +277,18 @@
 ;;(pj oracle-prices)
 ;;(pj (*rates-services-config*))
 ;;(pj (*rates-assets-config*))
-;;(def q (get-coinmarketcap-quote))
+(def q (get-coinmarketcap-quote))
 ;;(pj q)
-;;(writeln (map (cut hash-ref <> "symbol") (hash-ref q "data"))) ;; changes every time
-(pj (get-rates))
-(pj (get-median-rates))
+(writeln (map (cut hash-ref <> "symbol") (hash-ref q "data"))) ;; changes every time
+(writeln (length (hash-ref q "data"))) ;; changes every time
+
+(def q2 (get-coinlayer-quote))
+;;(pj q2)
+(writeln (sort (hash-keys (hash-ref q2 "rates")) string<?)) ;; changes every time
+(writeln (hash-length (hash-ref q2 "rates"))) ;; changes every time
+
+;;(pj (get-rates))
+;;(pj (get-median-rates))
 
 (save-oracle-prices-cache)
 (displayln "See price cache at: " (oracle-prices-cache-path))
