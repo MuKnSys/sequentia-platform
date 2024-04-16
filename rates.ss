@@ -13,12 +13,16 @@
 
 (import
   (group-in :std format sort sugar)
-  :std/debug/DBG
-  (group-in :std/misc hash path number ports repr)
+  (group-in :std/misc hash path number)
   (group-in :std/net request uri)
   (group-in :std/srfi |1|)
   (group-in :std/text json)
-  (group-in :clan config files json timestamp debug))
+  (group-in :clan config files json timestamp))
+
+(import ;; for development and debugging
+  (group-in :std/debug DBG)
+  (group-in :std/misc ports repr)
+  (group-in :clan debug))
 
 
 ;;; General utility functions, to move somewhere else
@@ -34,6 +38,7 @@
    ((zero? n) default)
    ((= i j) (list-ref s i))
    (else (* .5 (+ (list-ref s i) (list-ref s j))))))
+
 
 ;;; The registered price oracles access methods
 
@@ -201,7 +206,6 @@
 ;; TODO:
 ;; https://www.blockchain.com/explorer/api/exchange_rates_api
 ;; https://blockchain.info/ticker
-;; https://site.financialmodelingprep.com/developer/docs/bitcoin-price-free-api
 
 ;; Coinlayer.com
 ;; https://coinlayer.com/documentation
@@ -239,7 +243,8 @@
           (entry (symbol-select data selector)))
      (hash-ref (hash-ref (hash-ref entry "quote") "USD") "price"))))
 
-;; financialmodelingprep.com
+;; Financialmodelingprep.com
+;; https://site.financialmodelingprep.com/developer/docs/bitcoin-price-free-api
 ;; free is 250 calls/day, with 2 things, every 6 minutes
 (defprice-oracle financialmodelingprep
   ((config)

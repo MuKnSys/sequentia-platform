@@ -1,29 +1,34 @@
-{"coinmarketcap":
+{"coinlayer":
  {"WARNING_0": ">>>> KEEP YOUR API KEYS SECRET. <<<<",
   "WARNING_1": ">>>> DO NOT PUBLISH YOUR rates-services-config.json FILE ANYWHERE <<<<",
   "WARNING_2": ">>>> NOR SHARE IT WITH ANYONE BUT CO-ADMINISTRATORS OF YOUR SERVER! <<<<",
   "WARNING_4": "",
-  "comment_0": "This file is a template for a services configuration file for the rates server.",
-  "comment_1": "Put it in ~/.config/sequentia/rates-services-config.json",
-  "comment_2": "or ${XDG_CONFIG_HOME}/sequentia/rates-services-config.json",
-  "comment_3": "And don't forget to replace the API keys by yours, etc.",
-  "comment_4": "Leave the refractory_period at 7200 (7200 seconds = 2h) for a free API key",
-  "comment_5": "Make it 30 (30 seconds, half a minute) for a $40/mo key",
-  "comment_6": "",
-  "comment_7": "You should remove the warnings and comments while you're at it.",
-  "comment_8": "",
-  "host": "pro-api.coinmarketcap.com",
-  "key": "1234abcd-56ef-7890-f00d-1deadbeef666",
-  "refractory_period": 7200},
+  "USAGE_0": "This file is a template for a services configuration file for the rates server.",
+  "USAGE_1": "Put it in ~/.config/sequentia/rates-services-config.json",
+  "USAGE_2": "or ${XDG_CONFIG_HOME}/sequentia/rates-services-config.json",
+  "USAGE_3": "And don't forget to replace each API keys by yours, etc.",
+  "USAGE_4": "",
+  "USAGE_5": "You may remove or edit warnings and comments in your private file.",
+  "USAGE_5": "Make sure they have different numbers, and are not at the top level.",
 
- "coinlayer":
- {"comment": "Free API key has only 100 calls/month, no https, wait 8h between queries",
+  "comment_0": "A Coinlayer Free API key only has 100 calls/month, and no https.",
+  "comment_1": "So wait 8h between queries",
+
   "url": "http://api.coinlayer.com",
   "key": "1234567890abcdef1234567890abcdef",
   "refractory_period": 28800},
 
+ "coinmarketcap":
+ {"comment_0": "Leave the refractory_period at 7200 (7200 seconds = 2h) for a free API key",
+  "comment_1": "Make it 30 (30 seconds, half a minute) for a $40/mo key",
+
+  "host": "pro-api.coinmarketcap.com",
+  "key": "1234abcd-56ef-7890-f00d-1deadbeef666",
+  "refractory_period": 7200},
+
  "financialmodelingprep":
- {"comment_0": "Free API key has only 250 calls/day",
-  "comment_1": "So we will call once per 10 minutes",
+ {"comment_0": "A free API key has only 250 calls/day",
+  "comment_1": "Wait 10min between queries",
+
   "key": "abcdefghijklmNOPQRSTUVWXYZ012345",
   "refractory_period": 600}}
