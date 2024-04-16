@@ -46,19 +46,14 @@
 
 ;; List to hash-table given
 ;; HashTable <- List
-(def (list->hash-table/by-symbol lst)
-  (list->hash-table (map (lambda (x) (cons (hash-ref x "symbol") x)) lst)))
-
-;; List to hash-table given
-;; HashTable <- List
-(def (list->hash-table/by-symbol lst)
-  (list->hash-table (map (lambda (x) (cons (hash-ref x "symbol") x)) lst)))
+(def (list->hash-table/by-symbol lst (field "symbol"))
+  (list->hash-table (map (lambda (x) (cons (hash-ref x field) x)) lst)))
 
 ;; Access a quote of given symbol from a list
 ;; HashTable <- (Listof HashTable) (Or String Fixnum)
-(def (symbol-select data selector)
+(def (symbol-select data selector (field "symbol"))
   (cond
-   ((string? selector) (find (lambda (x) (equal? (hash-ref x "symbol") selector)) data))
+   ((string? selector) (find (lambda (x) (equal? (hash-ref x field) selector)) data))
    ((fixnum? selector) (list-ref data selector))
    (else (error "bad selector" selector))))
 
@@ -220,15 +215,37 @@
       (register-price-oracle (as-string 'name) get-quote get-rate))))
 
 ;; TODO:
+
+;; Only for Bitcoin:
 ;; https://www.blockchain.com/explorer/api/exchange_rates_api
 ;; https://blockchain.info/ticker
+(defprice-oracle blockchain.info
+  ((config)
+   (bytes->json-object
+    (request-content
+     (http-get "https://blockchain.info/ticker"))))
+  ((quote-json selector)
+   (unless (equal? selector "BTC")
+     (error "bad selector" selector))
+   (hash-ref* quote-json "USD" "last")))
+
+;; CEX.io
+;; https://cex.io/rest-api#ticker
+(defprice-oracle cex.io
+  ((config)
+   (bytes->json-object
+    (request-content
+     (http-get "https://cex.io/api/tickers/USD"))))
+  ((quote-json selector)
+   (hash-ref (symbol-select (hash-ref quote-json "data") selector "pair") "last")))
+
 
 ;; Coinlayer.com
 ;; https://coinlayer.com/documentation
 ;; Free API key has only 100 queries per month, so set refractory period to 28800 (8 hours)
 ;; Also, free API can only use http, not https. There is no test server.
 ;; See how many queries you have left at: https://coinlayer.com/dashboard
-(defprice-oracle coinlayer
+(defprice-oracle coinlayer.com
   ((config)
    (let ((url (hash-ref config "url"))
          (key (hash-ref config "key")))
@@ -244,7 +261,7 @@
 ;; or once a minute for about 2h45. https://pro.coinmarketcap.com/api/pricing
 ;; The $30/mo plan has 110K calls per month, enough for twice a minute
 ;; Test server serves garbage, albeit in the right format.
-(defprice-oracle coinmarketcap
+(defprice-oracle coinmarketcap.com
   ((config)
    (let ((host (hash-ref config "host"))
          (key (hash-ref config "key")))
@@ -260,7 +277,7 @@
 ;; Financialmodelingprep.com
 ;; https://site.financialmodelingprep.com/developer/docs/bitcoin-price-free-api
 ;; free is 250 calls/day, with 2 things, every 6 minutes
-(defprice-oracle financialmodelingprep
+(defprice-oracle financialmodelingprep.com
   ((config)
    (let* ((key (hash-ref config "key"))
           (assets '("BTC" "ETH"))
@@ -312,9 +329,11 @@
 ;;(apropos "coinlayer")
 ;;(trace! get-rates get-rate/oracle-path get-oracle-data get-coinmarketcap-quote get-coinmarketcap-rate)
 ;;(pj (get-coinlayer-quote))
-;;(pj (get-oracle-data "coinlayer"))
-;;(pj (get-financialmodelingprep-quote))
-;;(pj (get-oracle-data "financialmodelingprep"))
+;;(pj (get-oracle-data "coinlayer.com"))
+;;(pj (get-financialmodelingprep.com-quote))
+;;(pj (get-cex.io-quote))
+;;(pj (get-oracle-data "financialmodelingprep.com"))
+;;(pj (get-oracle-data "financialmodelingprep.com"))
 ;;(pj oracle-prices)
 ;;(pj (*rates-services-config*))
 ;;(pj (*rates-assets-config*))

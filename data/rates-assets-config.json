@@ -1,26 +1,29 @@
 {"BTC":
- {"comment_0": "This file is a template for an assets configuration file for the rates server.",
-  "comment_1": "Put it in ~/.config/sequentia/rates-assets-config.json",
-  "comment_2": "or ${XDG_CONFIG_HOME}/sequentia/rates-assets-config.json",
+ {"USAGE_0": "This file is a template for an assets configuration file for the rates server.",
+  "USAGE_1": "Put it in ~/.config/sequentia/rates-assets-config.json",
+  "USAGE_2": "or ${XDG_CONFIG_HOME}/sequentia/rates-assets-config.json",
 
-  "comment_3": "Unlike the rates-servics-config.json file that you should never share,",
-  "comment_4": "you can totally share this file with people setting up their servers.",
+  "USAGE_3": "Unlike the rates-services-config.json file that you should never share,",
+  "USAGE_4": "you can totally share this file with people setting up their servers.",
 
-  "comment_5": "You should probably remove the comments from your actual configuration.",
+  "USAGE_5": "You should probably remove the comments from your actual configuration.",
 
   "nAsset": "0000000000000000000000000000000000000000000000000000000000000001",
   "usual_decimals": 8,
   "on_chain_scale": 100000000,
   "oracles":
-  {"coinlayer": "BTC",
-   "coinmarketcap": "BTC",
-   "financialmodelingprep": "BTCUSD"}},
+  {"blockchain.info": "BTC",
+   "cex.io": "BTC:USD",
+   "coinlayer.com": "BTC",
+   "coinmarketcap.com": "BTC",
+   "financialmodelingprep.com": "BTCUSD"}},
 
  "ETH":
  {"nAsset": "0000000000000000000000000000000000000000000000000000000000000002",
   "usual_decimals": 18,
   "on_chain_scale": 100000000,
   "oracles":
-  {"coinlayer": "ETH",
-   "coinmarketcap": "ETH",
-   "financialmodelingprep": "ETHUSD"}}}
+  {"cex.io": "ETH:USD",
+   "coinlayer.com": "ETH",
+   "coinmarketcap.com": "ETH",
+   "financialmodelingprep.com": "ETHUSD"}}}

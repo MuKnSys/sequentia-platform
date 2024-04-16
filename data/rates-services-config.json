@@ -1,4 +1,4 @@
-{"coinlayer":
+{"blockchain.info":
  {"WARNING_0": ">>>> KEEP YOUR API KEYS SECRET. <<<<",
   "WARNING_1": ">>>> DO NOT PUBLISH YOUR rates-services-config.json FILE ANYWHERE <<<<",
   "WARNING_2": ">>>> NOR SHARE IT WITH ANYONE BUT CO-ADMINISTRATORS OF YOUR SERVER! <<<<",
@@ -11,14 +11,22 @@
   "USAGE_5": "You may remove or edit warnings and comments in your private file.",
   "USAGE_5": "Make sure they have different numbers, and are not at the top level.",
 
-  "comment_0": "A Coinlayer Free API key only has 100 calls/month, and no https.",
+  "comment_0": "Wait 5min between queries",
+  "refractory_period": 300},
+
+ "cex.io":
+ {"comment_0": "Wait 2min between queries",
+  "refractory_period": 120},
+
+ "coinlayer.com":
+ {"comment_0": "A Coinlayer Free API key only has 100 calls/month, and no https.",
   "comment_1": "So wait 8h between queries",
 
   "url": "http://api.coinlayer.com",
   "key": "1234567890abcdef1234567890abcdef",
   "refractory_period": 28800},
 
- "coinmarketcap":
+ "coinmarketcap.com":
  {"comment_0": "Leave the refractory_period at 7200 (7200 seconds = 2h) for a free API key",
   "comment_1": "Make it 30 (30 seconds, half a minute) for a $40/mo key",
 
@@ -26,7 +34,7 @@
   "key": "1234abcd-56ef-7890-f00d-1deadbeef666",
   "refractory_period": 7200},
 
- "financialmodelingprep":
+ "financialmodelingprep.com":
  {"comment_0": "A free API key has only 250 calls/day",
   "comment_1": "Wait 10min between queries",
 
