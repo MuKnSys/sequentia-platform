@@ -28,4 +28,18 @@
    "coinapi.io": "ETH",
    "coinlayer.com": "ETH",
    "coinmarketcap.com": "ETH",
-   "financialmodelingprep.com": "ETHUSD"}}}
+   "financialmodelingprep.com": "ETHUSD"}},
+
+ "AAPL":
+ {"nAsset": "0000000000000000000000000000000000000000000000000000000000000100",
+  "usual_decimals": 0,
+  "on_chain_scale": 100000000,
+  "oracles":
+  {"polygon.io": "AAPL"}},
+
+ "TSLA":
+ {"nAsset": "0000000000000000000000000000000000000000000000000000000000000100",
+  "usual_decimals": 0,
+  "on_chain_scale": 100000000,
+  "oracles":
+  {"polygon.io": "TSLA"}}}

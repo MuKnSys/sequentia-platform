@@ -236,11 +236,12 @@
 ;; See how many queries you have left at: https://coinlayer.com/dashboard
 (defprice-oracle coinlayer.com
   ((config)
-   (let ((url (hash-ref config "url"))
+   (let ((protocol (hash-ref config "protocol"))
          (key (hash-ref config "key")))
      (bytes->json-object
       (request-content
-       (http-get (query-string (as-string url "/live") access_key: key))))))
+       (http-get (query-string (as-string protocol "://api.coinlayer.com/live")
+                               access_key: key))))))
   ((quote-json selector)
    (hash-ref* quote-json "rates" selector)))
 
@@ -252,11 +253,10 @@
 ;; Test server serves garbage, albeit in the right format.
 (defprice-oracle coinmarketcap.com
   ((config)
-   (let ((host (hash-ref config "host"))
-         (key (hash-ref config "key")))
+   (let ((key (hash-ref config "key")))
      (bytes->json-object
       (request-content
-       (http-get (query-string (as-string "https://" host "/v1/cryptocurrency/listings/latest")
+       (http-get (query-string "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest"
                                start: 1 limit: 5000 convert: 'USD)
                  headers: [["X-CMC_PRO_API_KEY" . key]
                            ["Accept" . "application/json"]])))))
@@ -269,8 +269,7 @@
 (defprice-oracle financialmodelingprep.com
   ((config)
    (let* ((key (hash-ref config "key"))
-          (assets '("BTC" "ETH"))
-          (pairs (string-join (map (cut string-append <> "USD") assets) ","))
+          (pairs (hash-ref config "asset_pairs"))
           (url (as-string "https://financialmodelingprep.com/api/v3/quote/" pairs)))
      (list->hash-table/by-symbol
       (bytes->json-object
@@ -282,25 +281,22 @@
 ;; Polygon.io
 ;; https://polygon.io/docs/stocks/get_v2_last_nbbo__stocksticker
 ;; Access requires $80/mo subscription... not for now
-(defprice-oracle polygon
+(defprice-oracle polygon.io
   ((config)
-   (let ((host (hash-ref config "host"))
-         (key (hash-ref config "key"))
-         (tickers '("AAPL" "TSLA")))
+   (let ((key (hash-ref config "key"))
+         (tickers (hash-ref config "tickers")))
      (list->hash-table
       (map (lambda (ticker)
              (cons ticker
                    (bytes->json-object
                     (request-content
-                     (http-get (query-string
-                                (as-string "https://" host "/v2/last/trade/" ticker)
+                     (http-get (query-string ;; only previous close fro
+                                (as-string "https://api.polygon.io/v2/aggs/ticker/" ticker "/prev")
                                 apiKey: key))))))
            tickers))))
   ((quote-json selector)
-   (let* ((results (hash-ref* quote-json selector "results"))
-          (P (hash-ref results "P"))
-          (p (hash-ref results "p")))
-     (* .5 (+ P p)))))
+   ;; This is very imprecise, only close from last day
+   (hash-ref (symbol-select (hash-ref* quote-json selector "results") selector "T") "c")))
 
 
 ;;; TODO: Connecting to a sequentia node
@@ -310,40 +306,44 @@
 #||#
 
 (def (pj x) (pretty-json x #t)) ;; lisp-style?: #t))
-(json-symbolic-keys #f) ;; (read-json-key-as-symbol? #f)
-(json-sort-keys #t) ;; (write-json-sort-keys? #t)
-(read-rates-config)
-(load-oracle-prices-cache)
 
-;; (writeln (sort (hash-keys price-oracles) string<?))
+(def (main)
+  (json-symbolic-keys #f) ;; (read-json-key-as-symbol? #f)
+  (json-sort-keys #t) ;; (write-json-sort-keys? #t)
+  (read-rates-config)
+  (load-oracle-prices-cache)
 
-;;(apropos "coinlayer")
-;;(trace! get-rates get-rate/oracle-path get-oracle-data get-coinmarketcap-quote get-coinmarketcap-rate)
-;;(pj (get-coinlayer-quote))
-;;(pj (get-oracle-data "coinlayer.com"))
-;;(pj (get-financialmodelingprep.com-quote))
-;;(pj (get-cex.io-quote))
-;;(pj (get-oracle-data "financialmodelingprep.com"))
-;;(pj (get-oracle-data "financialmodelingprep.com"))
-;;(pj oracle-prices)
-;;(pj (*rates-services-config*))
-;;(pj (*rates-assets-config*))
+  ;;(writeln (sort (hash-keys price-oracles) string<?))
+  ;;(apropos "coinlayer")
+  ;;(trace! get-rates get-rate/oracle-path get-oracle-data get-coinmarketcap-quote get-coinmarketcap-rate)
+  ;;(pj (get-coinlayer-quote))
+  ;;(pj (get-oracle-data "coinlayer.com"))
+  ;;(pj (get-financialmodelingprep.com-quote))
+  ;;(pj (get-cex.io-quote))
+  ;;(pj (get-oracle-data "financialmodelingprep.com"))
+  ;;(pj (get-oracle-data "financialmodelingprep.com"))
+  ;;(pj oracle-prices)
+  ;;(pj (*rates-services-config*))
+  ;;(pj (*rates-assets-config*))
 
-;;(def q (get-coinmarketcap-quote))
-;;(pj q)
-;;(writeln (map (cut hash-ref <> "symbol") (hash-ref q "data")))
-;;(writeln (length (hash-ref q "data")))
+  ;;(let (q (get-coinmarketcap.com-quote))
+  ;;  (pj q)
+  ;;  (writeln (map (cut hash-ref <> "symbol") (hash-ref q "data")))
+  ;;  (writeln (length (hash-ref q "data"))))
 
-;;(def q2 (get-coinlayer-quote))
-;;(pj q2)
-;;(writeln (sort (hash-keys (hash-ref q2 "rates")) string<?))
-;;(writeln (hash-length (hash-ref q2 "rates"))
+  ;;(let (q (get-coinlayer.com-quote))
+  ;;  (pj q)
+  ;;  (writeln (sort (hash-keys (hash-ref q "rates")) string<?))
+  ;;  (writeln (hash-length (hash-ref q2 "rates"))))
 
-;;(pj (get-coinapi.io-quote))
-;;(writeln (length (hash-ref (get-coinapi.io-quote) "rates"))) ; => 4999
+  ;;(pj (get-coinapi.io-quote))
+  ;;(writeln (length (hash-ref (get-coinapi.io-quote) "rates"))) ; => 4999
 
-(pj (get-rates))
-;;(pj (get-median-rates))
+  ;;(pj (get-polygon.io-quote))
 
-(save-oracle-prices-cache)
-(displayln "See price cache at: " (oracle-prices-cache-path))
+  (pj (get-rates))
+  ;;(pj (get-median-rates))
+
+  (save-oracle-prices-cache)
+  (displayln "See price cache at: " (oracle-prices-cache-path))
+  (void))

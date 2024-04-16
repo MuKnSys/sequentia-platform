@@ -27,7 +27,7 @@
  {"comment_0": "A Coinlayer Free API key only has 100 calls/month, and no https.",
   "comment_1": "So wait 8h between queries",
 
-  "url": "http://api.coinlayer.com",
+  "protocol": "http",
   "key": "1234567890abcdef1234567890abcdef",
   "refractory_period": 28800},
 
@@ -35,7 +35,7 @@
  {"comment_0": "Leave the refractory_period at 7200 (7200 seconds = 2h) for a free API key",
   "comment_1": "Make it 30 (30 seconds, half a minute) for a $40/mo key",
 
-  "host": "pro-api.coinmarketcap.com",
+  "host": "",
   "key": "1234abcd-56ef-7890-f00d-1deadbeef666",
   "refractory_period": 7200},
 
@@ -44,4 +44,11 @@
   "comment_1": "Wait 10min between queries",
 
   "key": "abcdefghijklmNOPQRSTUVWXYZ012345",
-  "refractory_period": 600}}
+  "asset_pairs": "BTCUSD,ETHUSD",
+  "refractory_period": 600},
+
+ "polygon.io":
+ {"comment": "Dunno what rate limit to use, use 60 minutes",
+  "key": "abcdefghijklmNOPQRSTUVWXYZ012345",
+  "tickers": ["AAPL", "TSLA"],
+  "refractory_period": 3600}}
