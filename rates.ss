@@ -12,7 +12,7 @@
 ;;; Imports
 
 (import
-  (group-in :std format sort sugar)
+  (group-in :std sort sugar)
   (group-in :std/misc hash path number)
   (group-in :std/net request uri)
   (group-in :std/srfi |1|)
@@ -38,6 +38,29 @@
    ((zero? n) default)
    ((= i j) (list-ref s i))
    (else (* .5 (+ (list-ref s i) (list-ref s j))))))
+
+;; Access successive subnodes in a JSON object
+(defrules hash-ref* ()
+  ((h x) x)
+  ((h x y . z) (h (hash-ref x y) . z)))
+
+;; List to hash-table given
+;; HashTable <- List
+(def (list->hash-table/by-symbol lst)
+  (list->hash-table (map (lambda (x) (cons (hash-ref x "symbol") x)) lst)))
+
+;; List to hash-table given
+;; HashTable <- List
+(def (list->hash-table/by-symbol lst)
+  (list->hash-table (map (lambda (x) (cons (hash-ref x "symbol") x)) lst)))
+
+;; Access a quote of given symbol from a list
+;; HashTable <- (Listof HashTable) (Or String Fixnum)
+(def (symbol-select data selector)
+  (cond
+   ((string? selector) (find (lambda (x) (equal? (hash-ref x "symbol") selector)) data))
+   ((fixnum? selector) (list-ref data selector))
+   (else (error "bad selector" selector))))
 
 
 ;;; The registered price oracles access methods
@@ -196,13 +219,6 @@
       (def (get-rate quote-json path) body2 ...)
       (register-price-oracle (as-string 'name) get-quote get-rate))))
 
-;; Access a quote of given symbol from a list
-(def (symbol-select data selector)
-  (cond
-   ((string? selector) (find (lambda (x) (equal? (hash-ref x "symbol") selector)) data))
-   ((fixnum? selector) (list-ref data selector))
-   (else (error "bad selector" selector))))
-
 ;; TODO:
 ;; https://www.blockchain.com/explorer/api/exchange_rates_api
 ;; https://blockchain.info/ticker
@@ -218,9 +234,9 @@
          (key (hash-ref config "key")))
      (bytes->json-object
       (request-content
-       (http-get (query-string (format "~a/live" url) access_key: key))))))
+       (http-get (query-string (as-string url "/live") access_key: key))))))
   ((quote-json selector)
-   (hash-ref (hash-ref quote-json "rates") selector)))
+   (hash-ref* quote-json "rates" selector)))
 
 ;; Coinmarketcap.com
 ;; https://coinmarketcap.com/api/documentation/v1/#section/Quick-Start-Guide
@@ -234,14 +250,12 @@
          (key (hash-ref config "key")))
      (bytes->json-object
       (request-content
-       (http-get (query-string (format "https://~a/v1/cryptocurrency/listings/latest" host)
+       (http-get (query-string (as-string "https://" host "/v1/cryptocurrency/listings/latest")
                                start: 1 limit: 5000 convert: 'USD)
                  headers: [["X-CMC_PRO_API_KEY" . key]
                            ["Accept" . "application/json"]])))))
   ((quote-json selector)
-   (let* ((data (hash-ref quote-json "data"))
-          (entry (symbol-select data selector)))
-     (hash-ref (hash-ref (hash-ref entry "quote") "USD") "price"))))
+   (hash-ref* (symbol-select (hash-ref quote-json "data") selector) "quote" "USD" "price")))
 
 ;; Financialmodelingprep.com
 ;; https://site.financialmodelingprep.com/developer/docs/bitcoin-price-free-api
@@ -251,12 +265,13 @@
    (let* ((key (hash-ref config "key"))
           (assets '("BTC" "ETH"))
           (pairs (string-join (map (cut string-append <> "USD") assets) ","))
-          (url (format "https://financialmodelingprep.com/api/v3/quote/~a" pairs)))
-     (bytes->json-object
-      (request-content
-       (http-get (query-string url apikey: key))))))
+          (url (as-string "https://financialmodelingprep.com/api/v3/quote/" pairs)))
+     (list->hash-table/by-symbol
+      (bytes->json-object
+       (request-content
+        (http-get (query-string url apikey: key)))))))
   ((quote-json selector)
-   (hash-ref (symbol-select quote-json selector) "price")))
+   (hash-ref* quote-json selector "price")))
 
 ;; Polygon.io
 ;; https://polygon.io/docs/stocks/get_v2_last_nbbo__stocksticker
@@ -272,11 +287,11 @@
                    (bytes->json-object
                     (request-content
                      (http-get (query-string
-                                (format "https://~a/v2/last/trade/~a" host ticker)
+                                (as-string "https://" host "/v2/last/trade/" ticker)
                                 apiKey: key))))))
            tickers))))
   ((quote-json selector)
-   (let* ((results (hash-ref (hash-ref quote-json selector) "results"))
+   (let* ((results (hash-ref* quote-json selector "results"))
           (P (hash-ref results "P"))
           (p (hash-ref results "p")))
      (* .5 (+ P p)))))
