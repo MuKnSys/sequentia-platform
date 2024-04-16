@@ -25,13 +25,13 @@ repl:
 	gxi -:te
 
 build-sequentia:
-	cd ./SEQ-Core-Elements; ./autogen.sh; ./configure; make -j$(shell nproc)
+	cd ../SEQ-Core-Elements; ./autogen.sh; ./configure; make -j$(shell nproc)
 
 build-sequentia-debug:
-	cd ./SEQ-Core-Elements; make clean; ./autogen.sh; ./configure --enable-debug; make -j$(shell nproc)
+	cd ../SEQ-Core-Elements; make clean; ./autogen.sh; ./configure --enable-debug; make -j$(shell nproc)
 
 rebuild-sequentia:
-	cd ./SEQ-Core-Elements; make -j$(shell nproc)
+	cd ../SEQ-Core-Elements; make -j$(shell nproc)
 
 record-demo:
 	./scripts/debug.ss start; gerbil build; asciinema rec demo.cast --command ./scripts/demo.ss; agg demo.cast demo.gif; rm demo.cast; ./scripts/debug.ss stop
