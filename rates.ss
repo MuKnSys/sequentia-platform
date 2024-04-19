@@ -64,7 +64,7 @@
         (catch (_) (error "Failed to read JSON config file" file))))
 
 
-;;; The registered price oracles access methods
+;;; A registry of named oracles and their access methods
 
 ;; (Table (List Function Function) <- String)
 (def price-oracles (hash))
@@ -72,6 +72,7 @@
 ;; <- String Function Function
 (def (register-price-oracle name get-quote get-rate)
   (hash-put! price-oracles name [get-quote get-rate]))
+
 
 ;;; Configuration
 
@@ -113,6 +114,8 @@
   (create-directory* (xdg-cache-home "sequentia"))
   (clobber-file (oracle-prices-cache-path)
                 (cut write-json oracle-prices <>)))
+
+;; TODO: save pristine data as obtained from source, just compressed, in a sqlite database.
 
 
 ;;; Getting rates from lazily-updated cache of oracles
@@ -298,6 +301,10 @@
    ;; This is very imprecise, only close from last day
    (hash-ref (symbol-select (hash-ref* quote-json selector "results") selector "T") "c")))
 
+;; TODO: add more data sources?
+;; https://medium.com/coinmonks/free-stock-apis-de8f13619911
+;; https://www.alphavantage.co/documentation/
+;; https://finnhub.io/
 
 ;;; TODO: Connecting to a sequentia node
 

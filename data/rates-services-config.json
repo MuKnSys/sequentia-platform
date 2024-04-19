@@ -35,7 +35,6 @@
  {"comment_0": "Leave the refractory_period at 7200 (7200 seconds = 2h) for a free API key",
   "comment_1": "Make it 30 (30 seconds, half a minute) for a $40/mo key",
 
-  "host": "",
   "key": "1234abcd-56ef-7890-f00d-1deadbeef666",
   "refractory_period": 7200},
 
