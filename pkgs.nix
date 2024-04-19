@@ -3,14 +3,14 @@ let
   nixpkgs-source = systemPkgs.fetchFromGitHub {
     owner = "MuKnIO";
     repo = "nixpkgs";
-    rev = "ed2c5605b165c6d88eab33fc2988bd6583fedca4";
-    sha256 = "sha256-NalftrdrbXNDmnBgJZd4Tnd73LuqfAyrZb22bTkfoEM=";
+    rev = "98803955f43860497cdb785343448d6c454aaede";
+    sha256 = "sha256-+UoKXNKJPxXc6Tb8znIKC+wptAhwg6bqP3RPQqICNC0=";
   };
   sequentia-source = systemPkgs.fetchFromGitHub {
     owner = "MuKnIO";
     repo = "SEQ-Core-Elements";
-    rev = "ac958ffe6b0963059ca2b21df5d9e7150474b07a";
-    sha256 = "sha256-G0EA/FYrPWHjLGKWW3+OVzCoThtfqoFt/9gFgaOI8Aw=";
+    rev = "6eb6a3262408a9d2d9f61b27dbc33180705032b9";
+    sha256 = "0gb9byglaxbgl49m6fl073wv8jl24rgfdwh1p604lcyigzryf9gp";
   };
   config = {
     packageOverrides = pkgs: rec {
