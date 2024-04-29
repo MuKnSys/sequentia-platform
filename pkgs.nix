@@ -4,7 +4,7 @@ let
     owner = "MuKnIO";
     repo = "nixpkgs";
     rev = "7e0ac2b84a76241917f8458d4050fd3316f9588c";
-    sha256 = "sha256-T5TCY6wJkmez4LZJAjR6TVOlT5XPryTD18ydUJ9x9rU=";
+    sha256 = "sha256-9DsfjcWPrCV6B1rMMtAczg/WtyOf2lsw+ob8otfqmOU=";
   };
   sequentia-source = systemPkgs.fetchFromGitHub {
     owner = "MuKnIO";
