@@ -61,7 +61,9 @@
 ;; JSON <- String
 (def (read-json-config file)
    (try (read-file-json file)
-        (catch (_) (error "Failed to read JSON config file" file))))
+        (catch (e) 
+          (display-exception e)
+          (error "Failed to read JSON config file" file))))
 
 
 ;;; A registry of named oracles and their access methods
