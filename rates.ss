@@ -1,4 +1,4 @@
-#!/usr/bin/gxi
+#!/usr/bin/env gxi
 ;;;;; Rates server
 
 ;; BEWARE: >>>> CONFIGURATION <<<<
