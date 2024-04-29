@@ -9,7 +9,7 @@
   "USAGE_3": "And don't forget to replace each API keys by yours, etc.",
   "USAGE_4": "",
   "USAGE_5": "You may remove or edit warnings and comments in your private file.",
-  "USAGE_5": "Make sure they have different numbers, and are not at the top level.",
+  "USAGE_6": "Make sure they have different numbers, and are not at the top level.",
 
   "comment_0": "Wait 5min between queries",
   "refractory_period": 300},
