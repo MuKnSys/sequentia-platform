@@ -1,3 +1,4 @@
+#!/usr/bin/gxi
 ;;;;; Rates server
 
 ;; BEWARE: >>>> CONFIGURATION <<<<
@@ -314,7 +315,7 @@
 ;;; Testing the above, for now, until we have a complete thing
 #||#
 
-(def (pj x) (pretty-json x #t)) ;; lisp-style?: #t))
+(def (pj x) (pretty-json x (current-output-port))) ;; lisp-style?: #t))
 
 (def (main)
   (json-symbolic-keys #f) ;; (read-json-key-as-symbol? #f)
