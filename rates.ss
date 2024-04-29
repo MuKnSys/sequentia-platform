@@ -124,7 +124,7 @@
 ;;; Getting rates from lazily-updated cache of oracles
 
 ;; Given an oracle, return a list of the timestamp of last query attempt,
-;; timestamp of data, and data (#f if none)
+;; timestamp of data, and raw data as JSON object (#f if none)
 ;; (List TAI TAI JSON) <- String
 (def (get-oracle-data oracle services-config: (services-config (*rates-services-config*)))
   (let/cc k
@@ -157,6 +157,9 @@
         (refresh)
         (catch (_) (return [#f #f #f])))))))
 
+;; Given an oracle and an oracle-dependent path to extract data from the raw oracle,
+;; return the rate corresponding to that path.
+;; Real <- String Any services-config: ?JSON
 (def (get-rate/oracle-path
       oracle path
       services-config: (services-config (*rates-services-config*)))
@@ -166,6 +169,10 @@
     ([_ get-rate]
      (get-rate data path))))
 
+;; Given assets-config and services-config, and using the cache,
+;; return a table that to each currency code (string) associates a table from service name (string)
+;; to conversion rate (Real) from the currency to RFU (aka USD).
+;; (Table (Table Real <- String) <- String) <- assets-config: ?JSON services-config: ?JSON
 (def (get-rates
       assets-config: (assets-config (*rates-assets-config*))
       services-config: (services-config (*rates-services-config*)))
@@ -177,9 +184,13 @@
         (cons oracle (get-rate/oracle-path oracle path services-config: services-config)))
       (hash-ref asset "oracles")))))
 
+;; Get the median rate among those available in a table, or #f if no rates are available.
+;; Real <- (Table Real <- String)
 (def (median<-rates rates)
   (median (filter identity (hash-values rates)) #f))
 
+;; Get the median rates for the configured currencies
+;; (Table Real <- String) <- assets-config: ?JSON services-config: ?JSON
 (def (get-median-rates
       assets-config: (assets-config (*rates-assets-config*))
       services-config: (services-config (*rates-services-config*)))
