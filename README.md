@@ -8,10 +8,11 @@ Enter nix shell, which will provide all the build tools and dependencies for bot
 ```shell
 nix-shell
 ```
-To build `SEQ-Core-Elements`, first import the source code from the submodule by running:
+To build `SEQ-Core-Elements`, first clone the repository into the parent directory of this repo:
 ```shell
-git submodule update --init --recursive
+git clone git@github.com:SequentiaSEQ/SEQ-Core-Elements.git ../SEQ-Core-Elements
 ```
+
 Then run:
 ```shell
 make build-sequentia
