@@ -9,16 +9,20 @@
 ;; https://coinlayer.com/product (choose the free plan, still need a credit card)
 ;; https://coinmarketcap.com/api/pricing/ (choose the free plan)
 ;; https://site.financialmodelingprep.com/developer/docs/pricing (choose the basic plan)
+;; https://polygon.io/dashboard/stocks
 
 
 ;;; Imports
 
 (import
   (group-in :std sort sugar)
+  (group-in :std/cli getopt multicall)
   (group-in :std/misc hash path number)
-  (group-in :std/net request uri)
+  (group-in :std/net httpd request uri)
+  (only-in :std/net/address inet-address->string)
   (group-in :std/srfi |1|)
   (group-in :std/text json)
+  (only-in :std/markup/xml write-xml)
   (group-in :clan config files json timestamp))
 
 (import ;; for development and debugging
@@ -62,10 +66,9 @@
 ;; JSON <- String
 (def (read-json-config file)
    (try (read-file-json file)
-        (catch (e) 
+        (catch (e)
           (display-exception e)
           (error "Failed to read JSON config file" file))))
-
 
 ;;; A registry of named oracles and their access methods
 
@@ -120,6 +123,12 @@
 
 ;; TODO: save pristine data as obtained from source, just compressed, in a sqlite database.
 
+;;; Initialize environment for rates
+(def (rates-environment)
+  (read-json-key-as-symbol? #f)
+  (write-json-sort-keys? #t)
+  (read-rates-config)
+  (load-oracle-prices-cache))
 
 ;;; Getting rates from lazily-updated cache of oracles
 
@@ -202,6 +211,25 @@
 
 ;;; The access methods
 
+;; Macro to define a price oracle.
+;; Usage: (defprice-oracle name get-quote-method get-rate-method)
+;;
+;; Name is a symbol for the name of the oracle.
+;; An entry in the price-oracles hash-table will be register under the symbol name (string).
+;; This entry will point to the defined get-FOO-quote and get-FOO-rate functions below,
+;; where functions are defined with FOO replaced by the provided name.
+;;
+;; A new function get-FOO-quote will be defined based on the get-quote-method argument;
+;; this get-quote-method argument must be of the form ((config) body1 ...) where
+;; config is the name of a services-config variable, and body1 the body of the function;
+;; the function will be defined with config being an optional argument that has a suitable
+;; default extracted from the current *rates-services-config*.
+;;
+;; A new function get-FOO-rate will be defined based on the get-rate-method argument;
+;; this get-rate-method argument must be of the form ((quote-json path) body2 ...) where
+;; quote-json is a variable to be bound to the JSON data provided by the oracle, and
+;; path is a variable to be bound to some oracle-dependent data to select a rate from that JSON data.
+;; The function will be defined with these two variables as mandatory positional variables.
 (defrule (defprice-oracle name ((config) body1 ...) ((quote-json path) body2 ...))
   (with-id defprice-oracle ((get-quote 'get- #'name '-quote)
                             (get-rate 'get- #'name '-rate))
@@ -297,7 +325,8 @@
 
 ;; Polygon.io
 ;; https://polygon.io/docs/stocks/get_v2_last_nbbo__stocksticker
-;; Access requires $80/mo subscription... not for now
+;; Access requires $80/mo subscription for up-to-date data... not for now
+;; Free access offers unlimited access to.. the closing price the previous day.
 (defprice-oracle polygon.io
   ((config)
    (let ((key (hash-ref config "key"))
@@ -323,48 +352,64 @@
 ;;; TODO: Connecting to a sequentia node
 
 
-;;; Testing the above, for now, until we have a complete thing
-#||#
+;; /rates -- handler for the rates page
+(def rates-mutex (make-mutex "rates"))
+(def (rates-handler req res)
+  (with-lock
+   rates-mutex
+   (cut http-response-write
+        res 200 '(("Content-Type" . "application/json-rpc"))
+        (json-object->string (get-rates)))))
 
-(def (pj x) (pretty-json x (current-output-port))) ;; lisp-style?: #t))
+;; / -- handler for the main page
+(def (root-handler req res)
+  (http-response-write
+   res 200 '(("Content-Type" . "text/html"))
+   (with-output-to-string
+     (cut write-xml
+          `(html
+            (head
+             (meta (@ (http-equiv "Content-Type") (content "text/html; charset=utf-8")))
+             (title "Sequentia Rates Server")
+             (body
+              (h1 "Hello, " ,(inet-address->string (http-request-client req)))
+              (p "Welcome to this "
+                 (a (@ (href "https://sequentia.io")) "Sequentia")
+                 " rates server. "
+                 "Please use "
+                 (a (@ (href "/rates")) "our JSON-RPC interface") "."))))))))
 
-(def (main)
-  (json-symbolic-keys #f) ;; (read-json-key-as-symbol? #f)
-  (json-sort-keys #t) ;; (write-json-sort-keys? #t)
-  (read-rates-config)
-  (load-oracle-prices-cache)
+;; default -- 404
+(def (default-handler req res)
+  (http-response-write res 404 '(("Content-Type" . "text/plain")) "Page not found."))
 
-  ;;(writeln (sort (hash-keys price-oracles) string<?))
-  ;;(apropos "coinlayer")
-  ;;(trace! get-rates get-rate/oracle-path get-oracle-data get-coinmarketcap-quote get-coinmarketcap-rate)
-  ;;(pj (get-coinlayer-quote))
-  ;;(pj (get-oracle-data "coinlayer.com"))
-  ;;(pj (get-financialmodelingprep.com-quote))
-  ;;(pj (get-cex.io-quote))
-  ;;(pj (get-oracle-data "financialmodelingprep.com"))
-  ;;(pj (get-oracle-data "financialmodelingprep.com"))
-  ;;(pj oracle-prices)
-  ;;(pj (*rates-services-config*))
-  ;;(pj (*rates-assets-config*))
+(def handlers
+  [["/" root-handler]
+   ["/rates" rates-handler]])
 
-  ;;(let (q (get-coinmarketcap.com-quote))
-  ;;  (pj q)
-  ;;  (writeln (map (cut hash-ref <> "symbol") (hash-ref q "data")))
-  ;;  (writeln (length (hash-ref q "data"))))
+;; 29256 comes from the last bytes of echo -n 'sequentia rates server' | sha256sum
+(define-entry-point (server address: (address "0.0.0.0:29256"))
+  (help: "Start a server"
+   getopt: [(option 'address "-a" "--address"
+            help: "Address on which to start a server"
+            default: "0.0.0.0:29256")])
+  (rates-environment)
+  ;; Start the HTTP daemon
+  (def httpd (start-http-server! address mux: (make-default-http-mux default-handler)))
+  ;; Register the handlers
+  (for-each (cut apply http-register-handler httpd <>) handlers)
+  ;; Wait for it to end
+  (thread-join! httpd))
 
-  ;;(let (q (get-coinlayer.com-quote))
-  ;;  (pj q)
-  ;;  (writeln (sort (hash-keys (hash-ref q "rates")) string<?))
-  ;;  (writeln (hash-length (hash-ref q2 "rates"))))
-
-  ;;(pj (get-coinapi.io-quote))
-  ;;(writeln (length (hash-ref (get-coinapi.io-quote) "rates"))) ; => 4999
-
-  ;;(pj (get-polygon.io-quote))
-
+(def (pj x) (pretty-json x (current-output-port) lisp-style?: #t))
+(define-entry-point (getrates)
+  (help: "Pretty-print rates"
+   getopt: [])
+  (rates-environment)
   (pj (get-rates))
-  ;;(pj (get-median-rates))
-
-  (save-oracle-prices-cache)
   (displayln "See price cache at: " (oracle-prices-cache-path))
   (void))
+
+(set-default-entry-point! 'server)
+(dump-stack-trace? #f)
+(define-multicall-main)

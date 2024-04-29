@@ -85,8 +85,7 @@
     (def tx (run-cli "sendtoaddress" [address "1" "null" "null" "null" "null" "null" "unset" "null" custom-asset]))
     (run-cli "gettransaction" [tx]
       json-decoder: (lambda (string)
-        (parameterize (#;(read-json-object-as-walist? #t) #;(write-json-sort-keys? #f)
-                       (json-sort-keys #f))
+        (parameterize ((read-json-object-as-walist? #t) (write-json-sort-keys? #f))
           (def walist-json (string->json-object string))
           (def alist-json (#;walist->alist hash->list walist-json))
           (def walistq-json (walistq! alist-json))
