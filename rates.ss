@@ -431,9 +431,7 @@
   (help: "Pretty-print rates"
    getopt: [])
   (rates-environment)
-  (pj (get-rates))
-  ;;(displayln "See price cache at: " (oracle-prices-cache-path))
-  (void))
+  (pj (get-rates)))
 
 (define-entry-point (getfeeexchangerates)
   (help: "Pretty-print getfeeexchangerates data"
@@ -444,3 +442,5 @@
 (set-default-entry-point! 'server)
 ;(dump-stack-trace? #f)
 (define-multicall-main)
+
+;;(displayln "See price cache at: " (oracle-prices-cache-path))
