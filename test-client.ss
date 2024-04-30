@@ -1,5 +1,5 @@
 (import
-  ./sequentia-client)
+  ./client)
 (export #t)
 
 (def client (make-SequentiaClient

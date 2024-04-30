@@ -10,7 +10,7 @@
   :std/sugar
   :std/text/json
   :clan/string
-  :mukn/sequentia/sequentia-client
+  :mukn/sequentia/client
   :mukn/sequentia/test-client
   :mukn/sequentia/types)
 

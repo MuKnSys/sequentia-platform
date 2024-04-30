@@ -5,7 +5,7 @@
   :std/cli/multicall
   :std/misc/process
   :std/sugar
-  :mukn/sequentia/sequentia-client
+  :mukn/sequentia/client
   :mukn/sequentia/types
   :mukn/sequentia/test-client)
 
