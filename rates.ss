@@ -15,7 +15,7 @@
 ;;; Imports
 
 (import
-  (group-in :std sort sugar)
+  (group-in :std iter sort sugar)
   (group-in :std/cli getopt multicall)
   (group-in :std/misc hash path number)
   (group-in :std/net httpd request uri)
@@ -208,6 +208,19 @@
               services-config: services-config)
    median<-rates))
 
+(def COIN (* 100 1000 1000))
+
+(def (get-fee-exchange-rates
+      assets-config: (assets-config (*rates-assets-config*))
+      services-config: (services-config (*rates-services-config*)))
+  (def rates (get-median-rates assets-config: assets-config
+                               services-config: services-config))
+  (def h (hash))
+  (for (((values asset config) (in-hash assets-config)))
+    (alet (rate (hash-get rates asset))
+      (hash-put! h (hash-ref config "nAsset")
+                 (/ rate (/ (hash-ref config "on_chain_scale") COIN)))))
+  h)
 
 ;;; The access methods
 
@@ -230,6 +243,8 @@
 ;; quote-json is a variable to be bound to the JSON data provided by the oracle, and
 ;; path is a variable to be bound to some oracle-dependent data to select a rate from that JSON data.
 ;; The function will be defined with these two variables as mandatory positional variables.
+;;
+;; See examples below.
 (defrule (defprice-oracle name ((config) body1 ...) ((quote-json path) body2 ...))
   (with-id defprice-oracle ((get-quote 'get- #'name '-quote)
                             (get-rate 'get- #'name '-rate))
@@ -259,7 +274,8 @@
     (request-content
      (http-get "https://cex.io/api/tickers/USD"))))
   ((quote-json selector)
-   (hash-ref (symbol-select (hash-ref quote-json "data") selector "pair") "last")))
+   (string->number
+    (hash-ref (symbol-select (hash-ref quote-json "data") selector "pair") "last"))))
 
 ;; Coinapi.io
 ;; https://docs.coinapi.io/
@@ -361,11 +377,19 @@
         res 200 '(("Content-Type" . "application/json-rpc"))
         (json-object->string (get-rates)))))
 
+;; /getfeeexchangerates -- handler for the rates page
+(def (getfeeexchangerates-handler req res)
+  (with-lock
+   rates-mutex
+   (cut http-response-write
+        res 200 '(("Content-Type" . "application/json-rpc"))
+        (json-object->string (get-fee-exchange-rates)))))
+
 ;; / -- handler for the main page
 (def (root-handler req res)
   (http-response-write
    res 200 '(("Content-Type" . "text/html"))
-   (with-output-to-string
+   (with-output-to-string []
      (cut write-xml
           `(html
             (head
@@ -385,7 +409,8 @@
 
 (def handlers
   [["/" root-handler]
-   ["/rates" rates-handler]])
+   ["/rates" rates-handler]
+   ["/getfeeexchangerates" getfeeexchangerates-handler]])
 
 ;; 29256 comes from the last bytes of echo -n 'sequentia rates server' | sha256sum
 (define-entry-point (server address: (address "0.0.0.0:29256"))
@@ -407,9 +432,15 @@
    getopt: [])
   (rates-environment)
   (pj (get-rates))
-  (displayln "See price cache at: " (oracle-prices-cache-path))
+  ;;(displayln "See price cache at: " (oracle-prices-cache-path))
   (void))
 
+(define-entry-point (getfeeexchangerates)
+  (help: "Pretty-print getfeeexchangerates data"
+   getopt: [])
+  (rates-environment)
+  (pj (get-fee-exchange-rates)))
+
 (set-default-entry-point! 'server)
-(dump-stack-trace? #f)
+;(dump-stack-trace? #f)
 (define-multicall-main)
