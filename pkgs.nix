@@ -9,12 +9,14 @@ let
   sequentia-source = systemPkgs.fetchFromGitHub {
     owner = "MuKnIO";
     repo = "SEQ-Core-Elements";
-    rev = "6eb6a3262408a9d2d9f61b27dbc33180705032b9";
-    sha256 = "0gb9byglaxbgl49m6fl073wv8jl24rgfdwh1p604lcyigzryf9gp";
+    rev = "76a651841a04b7b4a383d646b8c13a89585cce96";
+    sha256 = "sha256-A0QNC55ih1pBh2RXGreTvUSNYS1iHVc5IL00IHr4tkQ=";
   };
   config = {
     packageOverrides = pkgs: rec {
-      sequentia = pkgs.callPackage sequentia-source {};
+      #sequentia = pkgs.callPackage sequentia-source {};
+      sequentiaPkgs = "${sequentia-source}/pkgs.nix";
+      sequentia = (import sequentiaPkgs).sequentia;
     };
   };
   pkgs = import nixpkgs-source { inherit config; };

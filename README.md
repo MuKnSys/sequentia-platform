@@ -79,7 +79,9 @@ To build the Gerbil modules required for testing, run:
 gerbil build
 ```
 
-## Testing
+## Testing and Debugging
+
+### Running automated tests
 
 All test scenarios will spin up a new node,
 then destroy it immediately after if the test passes successfully.
@@ -96,10 +98,18 @@ For example, to run the test scenario for the No Coin feature:
 ./scripts/test.ss no-coin-transaction
 ```
 
-## Debugging
+### Debugging
 
 To build `SEQ-Core-Elements` with debugging enabled, run:
 ```shell
 make build-sequentia-debug
 ```
 Then use `make rebuild-sequentia` when making changes to the local source.
+
+### Running Manual Tests
+
+```
+create datadir with elementsd.conf with user, password
+elementsd
+elements-cli setfeeexchangerates "$(curl -L http://localhost:29256/getfeeexchangerates)"
+```

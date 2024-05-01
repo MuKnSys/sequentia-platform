@@ -10,7 +10,7 @@
   :mukn/sequentia/client
   :mukn/sequentia/test-client
   :mukn/sequentia/types)
- 
+
 (def (setup)
   (set! (@ client log-rpc?) #true)
   {restart-daemon client}
@@ -23,7 +23,7 @@
   (when (file-exists? database-path)
     (run-process ["rm" "-rf" database-path])))
 
-(def (run-test block) 
+(def (run-test block)
   (setup)
   (block)
   (teardown))
@@ -186,7 +186,7 @@
     (def blinded-raw-tx {blind-raw-transaction client raw-tx})
     (def signed-raw-tx (hash-get {sign-raw-transaction-with-wallet client blinded-raw-tx} "hex"))
     {send-raw-transaction client signed-raw-tx}
-      
+
     (displayln "Pay out rewards")
     (def rewards-address {get-new-address client address-type: "blech32"})
     {generate-to-address client 101 rewards-address}
@@ -242,7 +242,7 @@
     (displayln "Fund wallet")
     (def funding-address {get-new-address client address-type: "bech32"})
     {generate-to-address client 101 funding-address}
-    
+
     (displayln "Create asset")
     (def asset-address {get-new-address client address-type: "bech32"})
     (def token-address {get-new-address client address-type: "bech32"})
@@ -275,7 +275,7 @@
     (def raw-tx {create-raw-transaction client inputs outputs})
     (def signed-raw-tx (hash-get {sign-raw-transaction-with-wallet client raw-tx} "hex"))
     {send-raw-transaction client signed-raw-tx}
-      
+
     (displayln "Pay out rewards")
     (def rewards-address {get-new-address client address-type: "bech32"})
     {generate-to-address client 1 rewards-address}

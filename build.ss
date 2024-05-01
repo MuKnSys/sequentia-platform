@@ -6,6 +6,7 @@
 
 (def (files)
   [(all-gerbil-modules) ...
+   [exe: "rates"]
    "scripts/test"
    "scripts/debug"
    "scripts/demo"])

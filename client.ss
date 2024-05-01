@@ -1,5 +1,5 @@
 ;;; -*- Gerbil -*-
-(import 
+(import
   :std/contract
   :std/error
   :std/event
@@ -11,18 +11,8 @@
   ./types)
 (export #t)
 
-(set! std/net/request#request-response-bytes 
-  (lambda (req)
-    (try
-      (if (eq? (request-status req) 200)
-        (request-content req)
-        (error "HTTP request failed"
-          (request-status req) (request-status-text req) (ignore-errors (request-text req))))
-      (finally
-        (request-close req)))))
-
 ; Sequentia
-(defclass SequentiaClient 
+(defclass SequentiaClient
   (data-directory host port username password log-file log-rpc? daemon-options))
 
 (defmethod {daemon-executable-name SequentiaClient}
@@ -36,15 +26,15 @@
 
 ; Daemon
 (defmethod {is-daemon-running? SequentiaClient}
-  (lambda (self) 
+  (lambda (self)
     (with-catch
       (lambda (exception) #false)
       (lambda () (http-get {rpc-server-url self}) #true))))
 
 (defmethod {start-daemon SequentiaClient}
   (lambda (self)
-    (run-process 
-      (append 
+    (run-process
+      (append
         [{daemon-executable-name self}
          (string-append "-datadir=" (@ self data-directory))
          (string-append "-debuglogfile=" (@ self log-file))]
@@ -79,7 +69,7 @@
 ; CLI
 (defmethod {run-cli-command SequentiaClient}
   (lambda (self arguments)
-    (run-process [{cli-executable-name self} 
+    (run-process [{cli-executable-name self}
       (string-append "-datadir=" (@ self data-directory))
       "-daemon"
       arguments ...]
@@ -131,7 +121,7 @@
 (defmethod {sign-raw-transaction-with-key SequentiaClient}
   (lambda (self) #f))
 
-(defmethod {send-raw-transaction SequentiaClient} 
+(defmethod {send-raw-transaction SequentiaClient}
   (lambda (self hex)
     {run-json-rpc self "sendrawtransaction" [hex]}))
 
@@ -165,7 +155,7 @@
     {run-json-rpc self "getrawtransaction" [tx-id verbose]}))
 
 (defmethod {list-transactions SequentiaClient}
-  (lambda (self 
+  (lambda (self
       label: (label "*")
       count: (count 10)
       skip: (skip 0)
@@ -190,12 +180,12 @@
       {load-wallet self wallet-name})))
 
 (defmethod {has-wallet? SequentiaClient}
-  (lambda (self name) 
+  (lambda (self name)
     (def existing-wallet-names {list-wallet-dir self})
     (find (lambda (existing-wallet-name) (equal? name existing-wallet-name)) existing-wallet-names)))
 
 (defmethod {is-wallet-loaded? SequentiaClient}
-  (lambda (self) 
+  (lambda (self)
     (not (null? {list-wallets self}))))
 
 (defmethod {list-wallets SequentiaClient}
@@ -232,22 +222,22 @@
       stop-height: (stop-height #!void))
     {run-json-rpc self "rescanblockchain" [start-height]}))
 
-(defmethod {get-new-address SequentiaClient} 
-  (lambda (self 
-      label: (label #!void) 
+(defmethod {get-new-address SequentiaClient}
+  (lambda (self
+      label: (label #!void)
       address-type: (address-type #!void))
     {run-json-rpc self "getnewaddress" [label address-type]}))
 
-(defmethod {get-raw-change-address SequentiaClient} 
+(defmethod {get-raw-change-address SequentiaClient}
   (lambda (self
       address-type: (address-type #!void))
     {run-json-rpc self "getrawchangeaddress" [address-type]}))
 
-(defmethod {send-to-address SequentiaClient} 
-  (lambda (self address amount 
+(defmethod {send-to-address SequentiaClient}
+  (lambda (self address amount
       comment: (comment #!void)
-      comment-to: (comment-to #!void) 
-      subtract-fee-from-amount: (subtract-fee-from-amount #!void) 
+      comment-to: (comment-to #!void)
+      subtract-fee-from-amount: (subtract-fee-from-amount #!void)
       replaceable: (replaceable #!void)
       conf-target: (conf-target #!void)
       estimate-mode: (estimate-mode #!void)
@@ -266,7 +256,7 @@
     {run-json-rpc self "generatetoaddress" [n-blocks address max-tries]}))
 
 (defmethod {list-unspent SequentiaClient}
-  (lambda (self 
+  (lambda (self
       min-conf: (min-conf #!void)
       max-conf: (max-conf #!void)
       addresses: (addresses #!void)
@@ -295,8 +285,8 @@
   (lambda (self) (make-string 64 #\0)))
 
 (defmethod {issue-asset SequentiaClient}
-  (lambda (self asset-amount token-amount 
-      blind: (blind #false) 
+  (lambda (self asset-amount token-amount
+      blind: (blind #false)
       contract-hash: (contract-hash (make-string 64 #\0)))
     {run-json-rpc self "issueasset" [asset-amount token-amount blind contract-hash]}))
 
@@ -313,10 +303,10 @@
     {run-json-rpc self "reissueasset" [asset amount]}))
 
 ;; Exchange rates
-(defmethod {get-fee-exchange-rates SequentiaClient} 
+(defmethod {get-fee-exchange-rates SequentiaClient}
   (lambda (self)
     {run-json-rpc self "getfeeexchangerates" []}))
 
-(defmethod {set-fee-exchange-rates SequentiaClient} 
+(defmethod {set-fee-exchange-rates SequentiaClient}
   (lambda (self rates)
     {run-json-rpc self "setfeeexchangerates" [rates]}))

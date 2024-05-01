@@ -1,7 +1,12 @@
 { withLocalSequentia ? true
 }:
+# Override the default with:
+#  nix-shell --arg withLocalSequentia false
+
 let pkgs = import ./pkgs.nix;
-    sequentia = if withLocalSequentia then import ../SEQ-Core-Elements/default.nix else pkgs.sequentia;
+    sequentia = if withLocalSequentia then
+       import ../SEQ-Core-Elements/default.nix else
+       pkgs.sequentia;
     gerbilPackages = [
         pkgs.gerbilPackages-unstable.gerbil-crypto
         pkgs.gerbilPackages-unstable.gerbil-utils
@@ -24,6 +29,7 @@ in pkgs.mkShell {
         export GERBIL_BUILD_CORES=$NIX_BUILD_CORES
         ${if withLocalSequentia then
            let sce = ../SEQ-Core-Elements/src ; in
-           "PATH=${sce}:$PATH" else ""}
+           "PATH=${sce}:$PATH" else
+           "PATH=${sequentia}/bin:$PATH"}
     '';
 }

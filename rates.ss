@@ -11,7 +11,21 @@
 ;; https://site.financialmodelingprep.com/developer/docs/pricing (choose the basic plan)
 ;; https://polygon.io/dashboard/stocks
 
+;; >>>> RUNNING IT <<<<
+;; Build with
+;;     ./build.ss
+;; Run the server with
+;;     ./rates.ss
+;; or the compiled version with in
+;;     ${GERBIL_PATH:-~/.gerbil}/bin/rates
+;; Be sure to hide behind a firewall, with a SSL reverse proxy...
+;; or configure the httpd as SSL (to be documented)
+;; Then query it with
+;;     curl -L http://localhost:29256/getfeeexchangerates
+;; or feed it into sequentia with:
+;;     elements-cli setfeeexchangerates $(curl -L http://localhost:29256/getfeeexchangerates)
 
+(export #t)
 ;;; Imports
 
 (import
@@ -364,6 +378,7 @@
 ;; https://medium.com/coinmonks/free-stock-apis-de8f13619911
 ;; https://www.alphavantage.co/documentation/
 ;; https://finnhub.io/
+;; https://snowtrace.io/documentation#api-plans
 
 ;;; TODO: Connecting to a sequentia node
 
