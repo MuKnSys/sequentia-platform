@@ -29,7 +29,7 @@
 ;;; Imports
 
 (import
-  (group-in :std iter sort sugar)
+  (group-in :std format iter sort sugar)
   (group-in :std/cli getopt multicall)
   (group-in :std/misc hash path number)
   (group-in :std/net httpd request uri)
@@ -64,6 +64,8 @@
   ((h x) x)
   ((h x y . z) (h (hash-ref x y) . z)))
 
+(def (pj x) (pretty-json x (current-output-port) lisp-style?: #t))
+
 ;; List to hash-table given
 ;; HashTable <- List
 (def (list->hash-table/by-symbol lst (field "symbol"))
@@ -79,10 +81,9 @@
 
 ;; JSON <- String
 (def (read-json-config file)
-   (try (read-file-json file)
-        (catch (e)
-          (display-exception e)
-          (error "Failed to read JSON config file" file))))
+  (try (read-file-json file)
+       (catch (_)
+         (error "Failed to read and validate JSON config file (use jq to debug it?)" file))))
 
 ;;; A registry of named oracles and their access methods
 
@@ -104,12 +105,22 @@
 (def *rates-assets-config*
   (make-parameter (hash)))
 
+;; JSON <- JSON
+(def (validate-services-config j)
+  j)
+
+;; JSON <- JSON
+(def (validate-assets-config j)
+  j)
+
 ;; <-
 (def (read-rates-config)
   (*rates-services-config*
-   (read-json-config (xdg-config-home "sequentia/rates-services-config.json")))
+   (validate-services-config
+    (read-json-config (xdg-config-home "sequentia/rates-services-config.json"))))
   (*rates-assets-config*
-   (read-json-config (xdg-config-home "sequentia/rates-assets-config.json"))))
+   (validate-assets-config
+    (read-json-config (xdg-config-home "sequentia/rates-assets-config.json")))))
 
 
 ;;; Cached prices from oracles
@@ -127,7 +138,10 @@
   (set! oracle-prices
     (try
      (read-file-json (oracle-prices-cache-path))
-     (catch (_) (hash)))))
+     (catch (_)
+       (eprintf "Price cache at ~a not present or invalid. Resetting cache state.\n"
+                (oracle-prices-cache-path))
+       (hash)))))
 
 ;; <-
 (def (save-oracle-prices-cache)
@@ -165,6 +179,9 @@
                 (stamp (current-tai-timestamp))
                 (result [stamp stamp new-quote]))
            (return result)))))
+    (def (errlog e)
+      (display-exception e (current-error-port))
+      e)
     (def previous (hash-get oracle-prices oracle))
     (match previous
       ([attempt-tai data-tai quote-data]
@@ -174,11 +191,19 @@
          (return previous))
        (try
         (refresh)
-        (catch (_) (return [(current-tai-timestamp) data-tai quote-data]))))
+        (catch (e)
+          (eprintf "Failed to refresh price oracle ~a -- returning old value from ~a\n"
+                   oracle (string<-tai-timestamp data-tai))
+          (errlog e)
+          (return [(current-tai-timestamp) data-tai quote-data]))))
       (_
        (try
         (refresh)
-        (catch (_) (return [#f #f #f])))))))
+        (catch (e)
+          (eprintf "Failed to query price oracle ~a -- returning false\n"
+                   oracle)
+          (errlog e)
+          (return [#f #f #f])))))))
 
 ;; Given an oracle and an oracle-dependent path to extract data from the raw oracle,
 ;; return the rate corresponding to that path.
@@ -186,11 +211,16 @@
 (def (get-rate/oracle-path
       oracle path
       services-config: (services-config (*rates-services-config*)))
-  (def service-config (hash-ref services-config oracle))
-  (def data (third (get-oracle-data oracle services-config: services-config)))
-  (match (hash-ref price-oracles oracle)
-    ([_ get-rate]
-     (get-rate data path))))
+  (let (data (void))
+    (try
+     (set! data (third (get-oracle-data oracle services-config: services-config)))
+     (match (hash-ref price-oracles oracle)
+       ([_ get-rate]
+        (get-rate data path)))
+     (catch (e)
+       (eprintf "Failed to extract from oracle ~a price for path ~a, data ~a\n"
+                oracle (json-object->string path) (json-object->string data))
+       #f))))
 
 ;; Given assets-config and services-config, and using the cache,
 ;; return a table that to each currency code (string) associates a table from service name (string)
@@ -434,6 +464,10 @@
             help: "Address on which to start a server"
             default: "0.0.0.0:29256")])
   (rates-environment)
+  (displayln "Current rates are:")
+  (pj (get-rates))
+  ;; TODO: have a verbose flag to control that?
+  (displayln "Starting an HTTP daemon listening on " address)
   ;; Start the HTTP daemon
   (def httpd (start-http-server! address mux: (make-default-http-mux default-handler)))
   ;; Register the handlers
@@ -441,7 +475,6 @@
   ;; Wait for it to end
   (thread-join! httpd))
 
-(def (pj x) (pretty-json x (current-output-port) lisp-style?: #t))
 (define-entry-point (getrates)
   (help: "Pretty-print rates"
    getopt: [])
