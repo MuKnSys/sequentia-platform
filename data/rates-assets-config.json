@@ -19,6 +19,16 @@
    "coinmarketcap.com": "BTC",
    "financialmodelingprep.com": "BTCUSD"}},
 
+ "USD":
+ {"comment_0": "The fudge factor of 0.97 makes it 3% cheaper to use this asset for fees",
+
+  "nAsset": "0000000000000000000000000000000000000000000000000000000000000099",
+  "usual_decimals": 2,
+  "on_chain_scale": 100000000,
+  "fudge_factor": 0.97,
+  "oracles":
+  {"constant": 1}},
+
  "ETH":
  {"nAsset": "0000000000000000000000000000000000000000000000000000000000000002",
   "usual_decimals": 18,

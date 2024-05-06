@@ -94,6 +94,12 @@
 (def (register-price-oracle name get-quote get-rate)
   (hash-put! price-oracles name [get-quote get-rate]))
 
+;; Get JSON from a HTTP GET
+(def (http-get/json url . rest)
+  (bytes->json-object
+   (request-content
+    (apply http-get url rest))))
+
 
 ;;; Configuration
 
@@ -170,8 +176,8 @@
         (hash-put! oracle-prices oracle x)
         (save-oracle-prices-cache))
       (k x))
-    (def config (hash-ref services-config oracle))
-    (def refractory-period (hash-ref config "refractory_period"))
+    (def config (hash-get services-config oracle))
+    (def refractory-period (if config (hash-ref config "refractory_period") +inf.0))
     (def (refresh)
       (match (hash-ref price-oracles oracle)
         ([get-quote _]
@@ -263,7 +269,9 @@
   (for (((values asset config) (in-hash assets-config)))
     (alet (rate (hash-get rates asset))
       (hash-put! h (hash-ref config "nAsset")
-                 (/ rate (/ (hash-ref config "on_chain_scale") COIN)))))
+                 (* rate
+                    (hash-ref config "fudge_factor" 1)
+                    (/ (hash-ref config "on_chain_scale" COIN) COIN)))))
   h)
 
 ;;; The access methods
@@ -297,6 +305,14 @@
       (def (get-rate quote-json path) body2 ...)
       (register-price-oracle (as-string 'name) get-quote get-rate))))
 
+;; Constant (for the Reference Fee Unit and any multiples of it)
+;; The selector is the constant rate that you return.
+(defprice-oracle constant
+  ((config)
+   #t)
+  ((_quote-json selector)
+   selector))
+
 ;; Blockchain.info (for Bitcoin price only)
 ;; https://www.blockchain.com/explorer/api/exchange_rates_api
 ;; https://blockchain.info/ticker
@@ -326,10 +342,8 @@
 (defprice-oracle coinapi.io
   ((config)
    (let ((key (hash-ref config "key")))
-     (bytes->json-object
-      (request-content
-       (http-get "https://rest.coinapi.io/v1/exchangerate/USD?invert=true"
-                 headers: [["X-CoinAPI-Key" . key]])))))
+     (http-get/json "https://rest.coinapi.io/v1/exchangerate/USD?invert=true"
+                    headers: [["X-CoinAPI-Key" . key]])))
   ((quote-json selector)
    (hash-ref (symbol-select (hash-ref quote-json "rates") selector "asset_id_quote") "rate")))
 
@@ -343,10 +357,8 @@
   ((config)
    (let ((protocol (hash-ref config "protocol"))
          (key (hash-ref config "key")))
-     (bytes->json-object
-      (request-content
-       (http-get (query-string (as-string protocol "://api.coinlayer.com/live")
-                               access_key: key))))))
+     (http-get/json (query-string (as-string protocol "://api.coinlayer.com/live")
+                                  access_key: key))))
   ((quote-json selector)
    (hash-ref* quote-json "rates" selector)))
 
@@ -359,12 +371,10 @@
 (defprice-oracle coinmarketcap.com
   ((config)
    (let ((key (hash-ref config "key")))
-     (bytes->json-object
-      (request-content
-       (http-get (query-string "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest"
-                               start: 1 limit: 5000 convert: 'USD)
-                 headers: [["X-CMC_PRO_API_KEY" . key]
-                           ["Accept" . "application/json"]])))))
+     (http-get/json (query-string "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest"
+                                  start: 1 limit: 5000 convert: 'USD)
+                    headers: [["X-CMC_PRO_API_KEY" . key]
+                              ["Accept" . "application/json"]])))
   ((quote-json selector)
    (hash-ref* (symbol-select (hash-ref quote-json "data") selector) "quote" "USD" "price")))
 
@@ -377,9 +387,7 @@
           (pairs (hash-ref config "asset_pairs"))
           (url (as-string "https://financialmodelingprep.com/api/v3/quote/" pairs)))
      (list->hash-table/by-symbol
-      (bytes->json-object
-       (request-content
-        (http-get (query-string url apikey: key)))))))
+      (http-get/json (query-string url apikey: key)))))
   ((quote-json selector)
    (hash-ref* quote-json selector "price")))
 
@@ -394,11 +402,9 @@
      (list->hash-table
       (map (lambda (ticker)
              (cons ticker
-                   (bytes->json-object
-                    (request-content
-                     (http-get (query-string ;; only previous close fro
-                                (as-string "https://api.polygon.io/v2/aggs/ticker/" ticker "/prev")
-                                apiKey: key))))))
+                   (http-get/json (query-string ;; only previous close fro
+                                   (as-string "https://api.polygon.io/v2/aggs/ticker/" ticker "/prev")
+                                   apiKey: key))))
            tickers))))
   ((quote-json selector)
    ;; This is very imprecise, only close from last day
@@ -466,6 +472,7 @@
   (rates-environment)
   (displayln "Current rates are:")
   (pj (get-rates))
+  (displayln "See price cache at: " (oracle-prices-cache-path))
   ;; TODO: have a verbose flag to control that?
   (displayln "Starting an HTTP daemon listening on " address)
   ;; Start the HTTP daemon
@@ -490,5 +497,3 @@
 (set-default-entry-point! 'server)
 ;(dump-stack-trace? #f)
 (define-multicall-main)
-
-;;(displayln "See price cache at: " (oracle-prices-cache-path))
