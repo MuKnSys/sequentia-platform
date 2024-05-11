@@ -20,12 +20,16 @@
    "financialmodelingprep.com": "BTCUSD"}},
 
  "USD":
- {"comment_0": "The fudge factor of 0.97 makes it 3% cheaper to use this asset for fees",
+ {"comment_0": "The fudge factor of 1.03 makes it 3% cheaper to use this asset for fees",
+  "comment_1": "i.e. the node will overvalue it compared to other assets,",
+  "comment_2": "and the user can thus pay fees with an according discount.",
+  "comment_3": "Do disfavor a fee asset and provide cover for its volatility,",
+  "comment_4": "you could instead use a fudge factor of 0.97 to put a 3% premium on its use.",
 
   "nAsset": "0000000000000000000000000000000000000000000000000000000000000099",
   "usual_decimals": 2,
   "on_chain_scale": 100000000,
-  "fudge_factor": 0.97,
+  "fudge_factor": 1.03,
   "oracles":
   {"constant": 1}},
 
