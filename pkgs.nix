@@ -3,8 +3,8 @@ let
   nixpkgs-source = systemPkgs.fetchFromGitHub {
     owner = "MuKnIO";
     repo = "nixpkgs";
-    rev = "4237c846ca9a370abc5de19e0de30813134c2ba4";
-    sha256 = "sha256-T5TCY6wJkmez4LZJAjR6TVOlT5XPryTD18ydUJ9x9rU=";
+    rev = "8b9c37af42da9e1c3a48d3befbc87bc83ff939a6";
+    sha256 = "sha256-WfiWW430xmb6mhaaDqB93e7gGuIXMV4oWqRXALeNvi8=";
   };
   sequentia-source = systemPkgs.fetchFromGitHub {
     owner = "MuKnIO";
