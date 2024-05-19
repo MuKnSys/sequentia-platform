@@ -5,6 +5,7 @@
   :std/cli/getopt
   :std/cli/multicall
   :std/misc/process
+  :std/net/request
   :std/sugar
   :std/text/json
   :mukn/sequentia/client
@@ -282,6 +283,16 @@
     {rescan-blockchain client}
     (def rewards {list-unspent client addresses: [rewards-address]})
     (assert! (= (length rewards) 1)))))
+
+(define-entry-point (rates-server)
+  (help: "Run test scenario for rates server integration" getopt: [])
+  (run-test (lambda ()
+    (def request (http-get "localhost:29256/getfeeexchangerates"))
+    (def new-rates (request-json request))
+    (displayln (hash-keys new-rates) (hash-values new-rates))
+    (displayln (json-object->string new-rates))
+    {set-fee-exchange-rates client new-rates}
+    (assert! (= (request-status request) 200)))))
 
 (current-program "test")
 (set-default-entry-point! 'no-coin-transaction)
