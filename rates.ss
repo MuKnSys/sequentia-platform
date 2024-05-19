@@ -258,7 +258,10 @@
               services-config: services-config)
    median<-rates))
 
-(def COIN (* 100 1000 1000))
+;; COIN = 1e8 (as integer).
+;; We assume 1 RFU = COIN atoms of RFU just like 1 BTC = COIN satoshi
+(def COIN-decimals 8)
+(def COIN (expt 10 COIN-decimals))
 
 (def (get-fee-exchange-rates
       assets-config: (assets-config (*rates-assets-config*))
@@ -272,7 +275,8 @@
       (hash-put! h (hash-ref config "nAsset")
                  (* rate
                     (hash-ref config "fudge_factor" 1)
-                    (/ COIN (expt 10 (hash-ref reference-asset "decimals" 2)))))))
+                    (expt 10 (- COIN-decimals
+                                (hash-ref config "decimals" COIN-decimals)))))))
   h)
 
 ;;; The access methods
@@ -494,6 +498,16 @@
    getopt: [])
   (rates-environment)
   (pj (get-fee-exchange-rates)))
+
+(define-entry-point (selfcheck)
+  (help: "Entry-Point to debug the binary"
+   getopt: [])
+  (displayln "foo")
+  (clobber-file "/tmp/foo"
+                (lambda (p)
+                  (display "barbaz\n" p)
+                  (write (current-output-port) p)
+                  )))
 
 (set-default-entry-point! 'server)
 ;(dump-stack-trace? #f)
