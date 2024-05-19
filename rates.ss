@@ -263,6 +263,11 @@
 (def COIN-decimals 8)
 (def COIN (expt 10 COIN-decimals))
 
+(def (normalize-rate x)
+  (if (integer? x)
+    (integer-part x)
+    x))
+
 (def (get-fee-exchange-rates
       assets-config: (assets-config (*rates-assets-config*))
       services-config: (services-config (*rates-services-config*)))
@@ -273,10 +278,11 @@
   (for (((values asset config) (in-hash assets-config)))
     (alet (rate (hash-get rates asset))
       (hash-put! h (hash-ref config "nAsset")
-                 (* rate
-                    (hash-ref config "fudge_factor" 1)
-                    (expt 10 (- COIN-decimals
-                                (hash-ref config "decimals" COIN-decimals)))))))
+                 (normalize-rate
+                  (* rate
+                     (hash-ref config "fudge_factor" 1)
+                     (expt 10 (- COIN-decimals
+                                 (hash-ref config "decimals" COIN-decimals))))))))
   h)
 
 ;;; The access methods
