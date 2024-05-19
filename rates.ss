@@ -265,13 +265,14 @@
       services-config: (services-config (*rates-services-config*)))
   (def rates (get-median-rates assets-config: assets-config
                                services-config: services-config))
+  (def reference-asset (hash-ref* assets-config "USD"))
   (def h (hash))
   (for (((values asset config) (in-hash assets-config)))
     (alet (rate (hash-get rates asset))
       (hash-put! h (hash-ref config "nAsset")
                  (* rate
                     (hash-ref config "fudge_factor" 1)
-                    (/ (hash-ref config "on_chain_scale" COIN) COIN)))))
+                    (/ COIN (expt 10 (hash-ref reference-asset "usual_decimals" 2)))))))
   h)
 
 ;;; The access methods

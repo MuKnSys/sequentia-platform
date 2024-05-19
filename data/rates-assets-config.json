@@ -10,7 +10,6 @@
 
   "nAsset": "0000000000000000000000000000000000000000000000000000000000000001",
   "usual_decimals": 8,
-  "on_chain_scale": 100000000,
   "oracles":
   {"blockchain.info": "BTC",
    "cex.io": "BTC:USD",
@@ -28,7 +27,6 @@
 
   "nAsset": "0000000000000000000000000000000000000000000000000000000000000099",
   "usual_decimals": 2,
-  "on_chain_scale": 100000000,
   "fudge_factor": 1.03,
   "oracles":
   {"constant": 1}},
@@ -36,7 +34,6 @@
  "ETH":
  {"nAsset": "0000000000000000000000000000000000000000000000000000000000000002",
   "usual_decimals": 18,
-  "on_chain_scale": 100000000,
   "oracles":
   {"cex.io": "ETH:USD",
    "coinapi.io": "ETH",
@@ -47,13 +44,11 @@
  "AAPL":
  {"nAsset": "0000000000000000000000000000000000000000000000000000000000000101",
   "usual_decimals": 0,
-  "on_chain_scale": 100000000,
   "oracles":
   {"polygon.io": "AAPL"}},
 
  "TSLA":
  {"nAsset": "0000000000000000000000000000000000000000000000000000000000000102",
   "usual_decimals": 0,
-  "on_chain_scale": 100000000,
   "oracles":
   {"polygon.io": "TSLA"}}}
