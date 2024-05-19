@@ -264,9 +264,7 @@
 (def COIN (expt 10 COIN-decimals))
 
 (def (normalize-rate x)
-  (if (integer? x)
-    (integer-part x)
-    x))
+  (integer-part (* x COIN)))
 
 (def (get-fee-exchange-rates
       assets-config: (assets-config (*rates-assets-config*))
