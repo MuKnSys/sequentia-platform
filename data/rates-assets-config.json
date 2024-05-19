@@ -9,7 +9,7 @@
   "USAGE_5": "You should probably remove the comments from your actual configuration.",
 
   "nAsset": "0000000000000000000000000000000000000000000000000000000000000001",
-  "usual_decimals": 8,
+  "decimals": 8,
   "oracles":
   {"blockchain.info": "BTC",
    "cex.io": "BTC:USD",
@@ -26,14 +26,14 @@
   "comment_4": "you could instead use a fudge factor of 0.97 to put a 3% premium on its use.",
 
   "nAsset": "0000000000000000000000000000000000000000000000000000000000000099",
-  "usual_decimals": 2,
+  "decimals": 2,
   "fudge_factor": 1.03,
   "oracles":
   {"constant": 1}},
 
  "ETH":
  {"nAsset": "0000000000000000000000000000000000000000000000000000000000000002",
-  "usual_decimals": 18,
+  "decimals": 18,
   "oracles":
   {"cex.io": "ETH:USD",
    "coinapi.io": "ETH",
@@ -43,12 +43,12 @@
 
  "AAPL":
  {"nAsset": "0000000000000000000000000000000000000000000000000000000000000101",
-  "usual_decimals": 0,
+  "decimals": 0,
   "oracles":
   {"polygon.io": "AAPL"}},
 
  "TSLA":
  {"nAsset": "0000000000000000000000000000000000000000000000000000000000000102",
-  "usual_decimals": 0,
+  "decimals": 0,
   "oracles":
   {"polygon.io": "TSLA"}}}

@@ -272,7 +272,7 @@
       (hash-put! h (hash-ref config "nAsset")
                  (* rate
                     (hash-ref config "fudge_factor" 1)
-                    (/ COIN (expt 10 (hash-ref reference-asset "usual_decimals" 2)))))))
+                    (/ COIN (expt 10 (hash-ref reference-asset "decimals" 2)))))))
   h)
 
 ;;; The access methods
