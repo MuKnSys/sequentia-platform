@@ -108,8 +108,13 @@ Then use `make rebuild-sequentia` when making changes to the local source.
 
 ### Running Manual Tests
 
+
 ```
 create datadir with elementsd.conf with user, password
 elementsd
 elements-cli setfeeexchangerates "$(curl -L http://localhost:29256/getfeeexchangerates)"
 ```
+
+
+## Copyright and License
+Copyright 2023 MuKn, Inc.
